@@ -34,6 +34,27 @@ demon_SSppDIV <- function(comm, q1, q2, q3, plotNames, nPlots) {
     alphas[i, 6] <- alfa3[[2]]
   }
   names(alphas) <- c("SRich", "SRichSErr", "Shannon", "ShannonSErr", "Simpson", "SimpsonSErr")
+  alphas$H <- diversity(comm)
+  alphas$Simp <- diversity(comm, "simpson")
+  alphas$invSimp <- diversity(comm, "inv")
+  
+  if (!identical(all.equal(comm, round(comm)), TRUE)) {
+    comm <- wisconsin(comm)
+    comm <- round(comm*100, 0) 
+    ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
+    alphas$unbiasSimp <- rarefy(comm, 2) - 1
+    ## Fisher alpha
+    alphas$Fisher_alpha <- fisher.alpha(comm)
+  } else { 
+    ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
+    alphas$unbiasSimp <- rarefy(comm, 2) - 1
+    ## Fisher alpha
+    alphas$Fisher_alpha <- fisher.alpha(comm)
+    }
+  ## Species richness (S) and Pielou's evenness (J):
+  alphas$S <- specnumber(comm) ## rowSums(BCI > 0) does the same...
+  alphas$J_Pielou <- alphas$H/log(alphas$S)
+  ## Plot all
   alphas$plotID <- plotNames
   
   print("Alpha diversity computed at plot level... ")
