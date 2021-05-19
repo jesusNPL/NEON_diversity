@@ -116,6 +116,30 @@ demon_DivDistance <- function(spectra, distance, standardize = FALSE, gowDist = 
 
 }
 
+##### Function to calculate phylogenetic diversity ##### 
+demon_PhyloDistance <- function(comm, phylo, abundance = TRUE, Q, plotNames) {
+  # Scheiner metrics are calculated using functions written by Shan Kothari.
+  source("https://raw.githubusercontent.com/ShanKothari/DecomposingFD/master/R/AlphaFD.R")
+  library(picante)
+  
+  
+  # Scheiner metrics 
+  Scheiner <- FTD.comm(tdmat = cophenetic(phylo), spmat = comm, q = Q, abund = TRUE)$com.FTD
+
+  PD <- picante::ses.pd(samp = comm, tree = phylo, 
+                               null.model = "taxa.labels", )  
+  MPD <- picante::ses.mpd(samp = comm, cophenetic(phylo), 
+                                 null.model = "taxa.labels", abundance.weighted = TRUE) 
+  
+  PICANTE <- data.frame(PD[, c("pd.obs", "pd.obs.z")], MPD[, c("mpd.obs", "mpd.obs.z")]) 
+  PICANTE$RaoD <- raoD(comm, force.ultrametric(phylo))$Dkk
+  
+  res <- data.frame(plotID = plotNames, PICANTE, Scheiner)
+  names(res) <- c("plotID", "PD", "PDz", "MPD", "MPDz", "RaoD", 
+                  "SR", "qHill", "M", "mPrime", "qHt", "qEt", "qDT", "qDTM")
+  return(res)
+
+}
 
 ##### Function to calculate RAO and EVE #####
 
