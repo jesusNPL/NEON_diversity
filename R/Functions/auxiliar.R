@@ -30,7 +30,7 @@ makeTable_phylogeny <- function(div1, div2) {
   # Vectors used to rename the taxonomic diversities
   name1 <- c("plotID", "PD", "PDz", "MPD", "MPDz", "Rao_Phylo", "SR", 
              "qHill", "M_Phylo", "mPrime_Phylo", "qHt_Phylo", 
-             "qEt_Phylo" , "qDT_Phylo", "qDTM_Phylo" ) 
+             "qEt_Phylo" , "qDT_Phylo", "qDTM_Phylo") 
   
   name2 <- c("plotID", "SD", "MSD", "MSm", "MNSD", "MxNSD", "SNTD", "Range", "nPixels", 
              "qHill", "M_Spec", "mPrime_Spec" , "qHt_Spec", 
@@ -51,3 +51,36 @@ makeTable_phylogeny <- function(div1, div2) {
   tab <- full_join(div1, div2, by = c("plotID", "qHill")) 
   return(tab)
 }
+
+##### Combine tables traits #####
+
+makeTable_traits <- function(div1, div2) {
+  # Vectors used to rename the taxonomic diversities
+  name1 <- c("plotID", "MFD", "MFDz", "SR", 
+             "qHill", "M_Trait", "mPrime_Trait", "qHt_Trait", 
+             "qEt_Trait", "qDT_Trait", "qDTM_Trait", 
+             "Divergence_Trait", "Evenness_Trait", "Rao_Trait", 
+             "Dispersion_Trait", "Richness_trait") 
+  
+  name2 <- c("plotID", "SD", "MSD", "MSm", "MNSD", "MxNSD", "SNTD", "Range", "nPixels", 
+             "qHill", "M_Spec", "mPrime_Spec" , "qHt_Spec", 
+             "qEt_Spec", "qDT_Spec", "qDTM_Spec", 
+             "Divergence_Spec", "Evenness_Spec", "Rao_Spec", "Dispersion_Spec") 
+  # Rename columns
+  names(div1) <- name1
+  names(div2) <- name2
+  
+  # Select columns
+  div1 <- div1 %>% 
+    select(plotID, MFD, MFDz, Rao_Trait, qHill, 
+           M_Trait, mPrime_Trait, qHt_Trait, qEt_Trait, qDT_Trait, qDTM_Trait, 
+           Divergence_Trait, Evenness_Trait, Dispersion_Trait)
+  div2 <- div2 %>% 
+    select(plotID, MSD, MSm, Rao_Spec, Range, qHill, 
+           M_Spec, mPrime_Spec, qHt_Spec, qEt_Spec, qDT_Spec, qDTM_Spec, 
+           Divergence_Spec, Evenness_Spec, Dispersion_Spec)
+  
+  tab <- full_join(div1, div2, by = c("plotID", "qHill")) 
+  return(tab)
+}
+

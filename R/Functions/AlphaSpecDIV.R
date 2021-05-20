@@ -48,6 +48,8 @@ demon_DivDistance <- function(spectra, distance, standardize = FALSE, gowDist = 
   SEve <- numeric(length = nPlots)
   # Rao's entropy index (Rao's Q)
   SRaoQ <- numeric(length = nPlots)
+  # Functional Dispersion (FDis)
+  SDis <- numeric(length = nPlots)
   
   for(i in 1:nPlots) { 
     
@@ -101,22 +103,30 @@ demon_DivDistance <- function(spectra, distance, standardize = FALSE, gowDist = 
     SEve[i] <- fundiversity::fd_feve(spec)[2]
     # Compute Rao's entropy index (Rao's Q)
     SRaoQ[i] <- fundiversity::fd_raoq(spec)[2]
+    # Compute Functional Dispersion (FDis)
+    SDis[i] <- fundiversity::fd_fdis(spec)[2]
     
   }
   
   alphaSDiv <- data.frame(plotNames, SD, MSD, MS, MNSD, MxNSD, SNTD, aveRange,  
                           nSP, q, M, M_prime, qHt, qEt, qDT, qDTM, 
-                          unlist(SDiv), unlist(SEve), unlist(SRaoQ)) 
+                          unlist(SDiv), unlist(SEve), unlist(SRaoQ), unlist(SDis)) 
   
   names(alphaSDiv) <- c("plotID", "SD", "MSD", "MSm", "MNSD", "MxNSD", "SNTD", "Range", 
                         "nPixels", "qHill", "M", "mPrime", "qHt", "qEt", "qDT", "qDTM", 
-                        "SDivergence", "SEvenness", "SRao")
+                        "SDivergence", "SEvenness", "SRao", "SDispersion")
   
   return(alphaSDiv)
 
 }
 
 ##### Function to calculate phylogenetic diversity ##### 
+
+## comm: picante community data matrix (CDM)
+## phylo: phylogenetic tree that match the names of the species in the CDM
+## Q = numeric value that represents the Hill coefficient q
+## plotNames = names of the plots
+
 demon_PhyloDistance <- function(comm, phylo, abundance = TRUE, Q, plotNames) {
   # Scheiner metrics are calculated using functions written by Shan Kothari.
   source("https://raw.githubusercontent.com/ShanKothari/DecomposingFD/master/R/AlphaFD.R")
@@ -140,6 +150,81 @@ demon_PhyloDistance <- function(comm, phylo, abundance = TRUE, Q, plotNames) {
   return(res)
 
 }
+
+##### Function to calculate trait diversity ##### 
+
+## comm: picante community data matrix (CDM)
+## trait: traits that match the names of the species in the CDM
+## Q = numeric value that represents the Hill coefficient q
+## plotNames = names of the plots
+## gowDist = logical (TRUE/FALSE). If TRUE the distance using GOWER distance is applied.
+
+demon_TraitDistance <- function(comm, trait, abundance = TRUE, Q, plotNames, nPlots, 
+                                gowDist = TRUE, gawDist = FALSE) {
+  # Scheiner metrics are calculated using functions written by Shan Kothari.
+  source("https://raw.githubusercontent.com/ShanKothari/DecomposingFD/master/R/AlphaFD.R")
+  library(picante)
+  library(gawdis)
+  
+  if (gowDist == TRUE) {
+    traitDist <- FD::gowdis(trait)
+  } else if (gawDist == TRUE) {
+    traitDist <- gawdis(trait, w.type = "optimized") 
+  } else {
+    traitDist <- factoextra::get_dist(trait, method = "euclidean", stand = TRUE)
+  }
+  
+  #matched <- match.comm.dist(comm = matchPhylo$comm, dis = traitDist)
+  
+  # Scheiner metrics 
+  Scheiner <- FTD.comm(tdmat = traitDist, spmat = comm, 
+                       q = Q, abund = TRUE, match.names = TRUE)$com.FTD
+  
+  print("Scheiner metrics, done!")
+  
+  MPD <- picante::ses.mpd(samp = comm, traitDist, 
+                          null.model = "taxa.labels", abundance.weighted = TRUE) 
+  
+  PICANTE <- data.frame(MPD[, c("mpd.obs", "mpd.obs.z")]) 
+  
+  print("Picante metrics, done!")
+  
+  ## getting frao, fric, feve, fdiv, fdis
+  nSP <- numeric(length = nPlots) # Number of species
+  trao <- numeric(length = nPlots) # Compute Rao's entropy index (Rao's Q)
+  tric <- numeric(length = nPlots) # Compute Functional Richness (FRic)
+  teve <- numeric(length = nPlots) # Compute Functional Evenness (FEve)
+  tdiv <- numeric(length = nPlots) # Compute Functional Divergence (FDiv)
+  tdis <- numeric(length = nPlots) # Compute Functional Dispersion (FDis) 
+  
+  for(i in 1:nPlots) {
+    spNames <- comm[i, ] > 0 
+    selection <- names(spNames[spNames == TRUE])
+    
+    nSP[i] <- length(selection)
+    trait_comm <- trait[rownames(trait) %in% selection, ]
+    trao[i] <- as.numeric(fd_raoq(trait_comm)[2])
+    tric[i] <- as.numeric(fd_fric(trait_comm)[2])
+    teve[i] <- as.numeric(fd_feve(trait_comm)[2])
+    tdiv[i] <- as.numeric(fd_fdiv(trait_comm)[2])
+    tdis[i] <- as.numeric(fd_fdis(trait_comm)[2])
+
+  }
+  
+  traitDiver <- data.frame(tdiv, teve, trao, tdis, tric)
+  
+  print("Classic trait diversity metrics, done! ")
+  
+  results <- data.frame(plotID = plotNames, PICANTE, Scheiner, traitDiver)
+  
+  names(results) <- c("plotID", "MFD", "MFDz", # Picante 
+                  "SR", "qHill", "M", "mPrime", "qHt", "qEt", "qDT", "qDTM", # Scheiner
+                  "TDivergence", "TEveness", "TRao", "TDispersion", "TRichness") # classic
+  return(results)
+  
+}
+
+
 
 ##### Function to calculate RAO and EVE #####
 
