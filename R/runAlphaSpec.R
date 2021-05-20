@@ -1,3 +1,4 @@
+###### Part 1 - run taxonomic dimension #####
 
 library(dplyr)
 library(tidyr)
@@ -83,10 +84,173 @@ saveRDS(Div_tax_alpha_thresh, file = "Results/HARV/taxo_alpha_thresh.rds")
 save(Div_tax_alpha_thresh, Div_tax_alpha_no_thresh, 
      file = "Results/HARV/div_tax_harv.RData")
 
-##### Make Bayesian robust correlations #####
+###### Part 2 - run phylogenetic dimension #####
+
+##### Run alpha diversity Phylogenetic and functional #####
+
+library(dplyr)
+library(tidyr)
+library(picante)
+library(fundiversity)
+library(phytools)
+source("R/NEON_diversity/R/Functions/AlphaSpecDIV.R")
+
+load("DATA/RData/HARV_SS.RData") # Spectral species
+rm(ss_NO_threshold)
+
+## Spectra data range from column 4 to 430
+plotNames <- unique(ss_threshold$plotID)
+nPlots <- length(plotNames)
+Range <- 5:430 ## Spectra data range from column 5 to 430
+QS <- c(0, 1, 2, 3) # different q values
+
+spec_harv_dis <- list()
+
+for(i in 1:length(QS)) {
+  
+  print(paste0("Starting calculations under ", QS[i], "..."))
+  
+  spec_harv_dis[[i]] <- demon_DivDistance(spectra = ss_threshold, plotNames = plotNames, 
+                                           nPlots = nPlots, specRange = Range, Q = QS[i], 
+                                           standardize = FALSE, gowDist = TRUE)
+}
+
+spec_harv_table <- do.call(rbind, spec_harv_dis)
+
+### save results 
+save(spec_harv_dis, spec_harv_table, file = "Results/HARV/div_spec_harv.RData")
+
+##### Run phylogenetic diversity #####
+
+load("DATA/Harvard_NEON/Data/harv_matchData.RData") # HARV data
+rm(harv_comm, harv_taxonomy, matchTrait)
+
+harvNames <- unique(harv_comm_clean$plotID_SPEC)
+QS <- c(0, 1, 2, 3) # different q values
+
+phylo_harv_dis <- list()
+
+for(j in 1:length(QS)) {
+  print(paste0("Starting calculations under q = ", QS[j], "..."))
+  
+  phylo_harv_dis[[j]] <- demon_PhyloDistance(comm = matchPhylo$comm, 
+                                        phylo = matchPhylo$phy, 
+                                        abundance = TRUE, Q = QS[j], 
+                                        plotNames = harvNames) 
+}
+
+phylo_harv_table <- do.call(rbind, phylo_harv_dis)
+
+### save results 
+save(phylo_harv_dis, phylo_harv_table, file = "Results/HARV/div_phylo_harv.RData")
+
+##### Combine phylogenetic and spectral distance results #####
+Div_phylo_spec_alpha <- makeTable_phylogeny(div1 = phylo_harv_table, 
+                                            div2 = spec_harv_table)
+
+save(Div_phylo_spec_alpha, file = "Results/HARV/div_phylo_spec_harv.RData")
+
+###### Part 3 - run trait dimension #####
+
+##### Run functional diversity #####
+library(dplyr)
+library(tidyr)
+library(picante)
+library(fundiversity)
+library(phytools)
+library(gawdis)
+source("R/NEON_diversity/R/Functions/AlphaSpecDIV.R")
+
+load("DATA/Harvard_NEON/Data/harv_matchData.RData") # HARV data
+rm(harv_comm, harv_taxonomy)
+
+#trait_BEIN_NEON <- readRDS("DATA/Traits/Traits_BIEN/traits_BIEN_NEON_spp_genus_combined.rds")
+#matchTrait <- trait_BEIN_NEON
+#rownames(matchTrait) <- matchTrait$Taxa
+#matchTrait <- match.phylo.data(phy = matchPhylo$phy, matchTrait)$data
+# count no NAs 
+apply(matchTrait, MARGIN = 2, function(x) sum(!is.na(x)))
+
+## Select traits with at least 50 observations
+
+matchTrait_sel <- matchTrait %>% 
+  select(Taxa, mean_WPH, mean_MaxWPH, mean_LNCPLDryMass, mean_LArea, 
+         mean_LAreaPLDryMass, mean_SeedMass, mean_LDryMass) %>% 
+  drop_na(mean_WPH)
+# count no NAs 
+apply(matchTrait_sel, MARGIN = 2, function(x) sum(!is.na(x)))
+# check if the values are numeric
+apply(matchTrait_sel, MARGIN = 2, class)
+# transform to numeric
+matchTrait_sel[, 2:8] <- lapply(matchTrait_sel[, 2:8], function(x) as.numeric(as.character(x)))
+rownames(matchTrait_sel) <- matchTrait_sel$Taxa
+
+# Select only species present in the trait database
+harv_comm <- t(harv_comm_clean[, 4:121])
+harv_comm <- harv_comm[rownames(harv_comm) %in% rownames(matchTrait_sel), ]
+harv_comm <- t(harv_comm)
+
+### Run trait diversity 
+plotNames <- harv_comm_clean$plotID_SPEC
+nPlots <- length(plotNames)
+
+QS <- c(0, 1, 2, 3) # different q values
+
+trait_harv_dis <- list()
+
+for(i in 1:length(QS)) {
+  print(paste0("Sarting calculations under Q = ", QS[i]))
+  
+  trait_harv_dis[[i]] <- demon_TraitDistance(comm = harv_comm, trait = matchTrait_sel[, 2:8], abundance = TRUE, 
+                                             Q = QS[i], plotNames = plotNames, 
+                                             nPlots = nPlots, gowDist = TRUE, gawDist = FALSE)
+}
+
+trait_harv_table <- do.call(rbind, trait_harv_dis)
+
+### save results 
+save(trait_harv_dis, trait_harv_table, file = "Results/HARV/div_trait_harv.RData")
+
+##### Run spectral diversity #####
+load("DATA/RData/HARV_SS.RData") # Spectral species
+rm(ss_NO_threshold)
+
+## Spectra data range from column 4 to 430
+plotNames <- unique(ss_threshold$plotID)
+nPlots <- length(plotNames)
+Range <- 5:430 ## Spectra data range from column 5 to 430
+QS <- c(0, 1, 2, 3) # different q values
+
+spec_harv_dis <- list()
+
+for(i in 1:length(QS)) {
+  
+  print(paste0("Starting calculations under ", QS[i], "..."))
+  
+  spec_harv_dis[[i]] <- demon_DivDistance(spectra = ss_threshold, plotNames = plotNames, 
+                                          nPlots = nPlots, specRange = Range, Q = QS[i], 
+                                          standardize = FALSE, gowDist = TRUE)
+}
+
+spec_harv_table <- do.call(rbind, spec_harv_dis)
+
+### save results 
+save(spec_harv_dis, spec_harv_table, file = "Results/HARV/div_spec_harv.RData")
+
+##### Combine phylogenetic and spectral distance results #####
+Div_trait_spec_alpha <- makeTable_traits(div1 = trait_harv_table, 
+                                            div2 = spec_harv_table)
+
+save(Div_trait_spec_alpha, file = "Results/HARV/div_trait_spec_harv.RData")
+
+###### Part 4 - Bayesian correlations #####
+
+##### Make Bayesian correlations taxonomy #####
+library(tidyverse)
+
 source("R/NEON_diversity/R/Functions/BayesianCorrelation.R")
 
-load("Results/HARV/div_tax_harv.RData")
+load("Results/HARV/div_tax_spec_harv.RData")
 
 corr_harv_tax_thresh <- demon_BayCorrTAX(matRES = Div_tax_alpha_thresh$divOBS, 
                                          nChains = 4, nIters = 2000, nCores = 20, 
@@ -96,196 +260,51 @@ corr_harv_tax_no_thresh <- demon_BayCorrTAX(matRES = Div_tax_alpha_no_thresh$div
                                             nChains = 4, nIters = 2000, nCores = 20, 
                                             pathSave = "Results/HARV/Bay_TAX_no_thresh_correlations.RData")
 
+##### Make Bayesian correlations phylogeny #####
 
+load("Results/HARV/div_phylo_spec_harv.RData")
 
+corr_harv_PHY_Q0 <- demon_BayCorrPHY(matRES = Div_phylo_spec_alpha, 
+                                     nChains = 4, nIters = 2000, nCores = 20, 
+                                     pathSave = "Results/HARV/Bay_Phylo_Q0_correlations.RData", 
+                                     Q = 0)
 
+corr_harv_PHY_Q1 <- demon_BayCorrPHY(matRES = Div_phylo_spec_alpha, 
+                                     nChains = 4, nIters = 2000, nCores = 20, 
+                                     pathSave = "Results/HARV/Bay_Phylo_Q1_correlations.RData", 
+                                     Q = 1)
 
+corr_harv_PHY_Q2 <- demon_BayCorrPHY(matRES = Div_phylo_spec_alpha, 
+                                     nChains = 4, nIters = 2000, nCores = 20, 
+                                     pathSave = "Results/HARV/Bay_Phylo_Q2_correlations.RData", 
+                                     Q = 2)
 
-library(vegan)
-data(BCI)
-i <- sample(nrow(BCI), 12)
-mod <- renyi(BCI[i,])
-plot(mod)
-mod <- renyiaccum(BCI[i,])
-plot(mod, as.table=TRUE, col = c(1, 2, 2))
-persp(mod)
+corr_harv_PHY_Q3 <- demon_BayCorrPHY(matRES = Div_phylo_spec_alpha, 
+                                     nChains = 4, nIters = 2000, nCores = 20, 
+                                     pathSave = "Results/HARV/Bay_Phylo_Q3_correlations.RData", 
+                                     Q = 3)
 
+##### Make Bayesian correlations traits #####
+source("R/NEON_diversity/R/Functions/BayesianCorrelation.R")
 
-data(BCI)
-H <- diversity(BCI)
-simp <- diversity(BCI, "simpson")
-invsimp <- diversity(BCI, "inv")
-## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
-unbias.simp <- rarefy(BCI, 2) - 1
-## Fisher alpha
-alpha <- fisher.alpha(BCI)
-## Plot all
-pairs(cbind(H, simp, invsimp, unbias.simp, alpha), pch="+", col="blue")
-## Species richness (S) and Pielou's evenness (J):
-S <- specnumber(BCI) ## rowSums(BCI > 0) does the same...
-J <- H/log(S)
-## beta diversity defined as gamma/alpha - 1:
-data(dune)
-data(dune.env)
-alpha <- with(dune.env, tapply(specnumber(dune), Management, mean))
-gamma <- with(dune.env, specnumber(dune, Management))
-gamma/alpha - 1
+load("Results/HARV/div_trait_spec_harv.RData")
 
+corr_harv_TRAIT_Q0 <- demon_BayCorrTRAIT(matRES = Div_trait_spec_alpha, 
+                                         nChains = 4, nIters = 2000, nCores = 20, 
+                                         pathSave = "Results/HARV/Bay_Trait_Q0_correlations.RData", 
+                                         Q = 0)
 
-#install.packages("fundiversity")
-library(fundiversity)
+corr_harv_TRAIT_Q1 <- demon_BayCorrTRAIT(matRES = Div_trait_spec_alpha, 
+                                         nChains = 4, nIters = 2000, nCores = 20, 
+                                         pathSave = "Results/HARV/Bay_Trait_Q1_correlations.RData", 
+                                         Q = 1)
 
-data(traits_birds)
-fd_raoq(traits_birds)
-fd_fric(traits_birds)
-fd_feve(traits_birds)
-fd_fdiv(traits_birds)
+corr_harv_TRAIT_Q2 <- demon_BayCorrTRAIT(matRES = Div_trait_spec_alpha, 
+                                         nChains = 4, nIters = 2000, nCores = 20, 
+                                         pathSave = "Results/HARV/Bay_Trait_Q2_correlations.RData", 
+                                         Q = 2)
 
-data("traits_plants")
-fd_raoq(traits_plants)
-fd_fric(traits_plants)
-fd_feve(traits_plants)
-fd_fdiv(traits_plants)
-
-
-remotes::install_github("ibartomeus/fundiv")
-library(fundiv)
-
-
-ex1 <- betaFD(c1 = c("sp3", "sp2", "sp1", "sp4", "sp5"), 
-              c2 = c("sp6", "sp7", "sp8", "sp4", "sp5"), 
-              S = dummy$trait)
-ex1
-
-fd <- FD_dendro2(S, A, Tree, Cluster.method = "average", 
-                 ord = "podani")
-
-ex1 <- FD_dendro2(A = dummy$abun, Tree = FDtree(S = dummy$trait, w = NA,
-                                                Distance.method = "gower", 
-                                                ord = "podani", 
-                                                Cluster.method = "average"))
-ex1
-
-Xtree(h)
-ex1 <- FD_Clark(S = dummy$trait, A = dummy$abun, Cluster.method = "average", ord = "podani",
-                Weigthedby = "abundance")
-ex1
-
-
-Tree = FDtree(S = dummy$trait, w = NA,
-              Distance.method = "gower", 
-              ord = "podani", 
-              Cluster.method = "average")
-
-Xtree(Tree$h2.prime)
-
-
-Ea0(A = dummy$abun)
-Ea0(A = dummy$abun, scales = c(0.25,0.5,1,2,4,8,Inf))
-EinvD(A = dummy$abun)
-EJ(A = dummy$abun)
-Evar(A = dummy$abun)
-#calculate all of them
-eve1 <- Eve(A = dummy$abun)
-
-
-
-ss_th_mean <- ss_threshold[, c(4, 6, 7:432)] %>% 
-  group_by(plotID, specSpp) %>% 
-  summarise_all("mean")
-
-ss_pt1 <- ss_th_mean %>% filter(plotID == "P_1")
-
-ss <- data.frame(ss_pt1[, 3:428])
-rownames(ss) <- ss_pt1$specSpp
-
-dis <- gowdis(ss)
-tree <- hclust(dis, method = "average")
-tree <- as.phylo(tree)
-plot(tree)
-
-
-setwd("../Dropbox/Macrosystems_NEON/")
-
-load("DATA/RData/HARV_SS.RData")
-library(tidyr)
-library(dplyr)
-
-harv_p1 <- ss_NO_threshold %>% 
-  filter(plotID == "P_1")
-
-harv_p1 <- harv_p1[, c(1, 2, 5:430)]
-harv_p1[1:10, 1:7]
-
-xx <- demon_SpecBeta(spectra = harv_p1, coords = harv_p1[, 1:2], 
-                     window = 1.5, metric = "bray")
-
-raoPICANTE <- raoD(harv_p1[, 5:430])
-eveFUNDIV <- Eve(harv_p1[, 5:430])
-Sys.time()
-
-xx$specBeta
-xx$specBetaPoints
-xx$specBetaRaster
-
-plot(xx$specBetaRaster$specTurnover)
-plot(xx$specBetaRaster$specNestedness)
-plot(xx$specBetaRaster$specBetaRatio)
-plot(xx$specBetaRaster$specBeta)
-
-plot(xx$specBetaRaster)
-
-
-xx <- demon_specFour(spectra = harv_p1, coords = harv_p1[, 1:2], window = 2, nPCA = 15)
-
-
-pts <- unique(ss_NO_threshold$plotID)
-npts <- length(pts)
-
-
-xx
-varcompHeight <- ape::varcomp(xx, scale = 1)
-varcompHeight
-
-setwd("C:/Users/jpintole/Dropbox/Macrosystems_NEON")
-load("DATA/RData/HARV_SS.RData")
-library(tidyr)
-library(dplyr)
-require(vegan)
-
-#devtools::install_github("ibartomeus/fundiv")
-
-source("R/Functions/AlphaSpecDIV.R")
-
-xx <- demon_specFour(spectra = harv_p1, coords = harv_p1[, 1:2], window = 2, nPCA = 15)
-
-
-pts <- unique(ss_NO_threshold$plotID)
-npts <- length(pts)
-
-xxx <- demon_DivDistance(spectra = ss_NO_threshold, distance = NULL, 
-                         standardize = TRUE, gowDist = TRUE, Q = 1, 
-                         nPlots = npts, 
-                         plotNames = pts, specRange = 5:430) 
-xxx
-
-yyy <- demon_SpecRaoEve(spectra = ss_NO_threshold, standardize = FALSE, 
-                             nPlots = npts, plotNames = pts, specRange = 5:430)
-
-yyy
-
-RAO_EVE_HARV <- list()
-
-for(i in 1:npts) {
-  
-  print(plotNames[i])
-  
-  harv <- ss_NO_threshold %>% filter(plotID == plotNames[i])
-  
-  RAO_EVE_HARV[[i]] <- demon_SpecRaoEve_RASTER(spectra = harv, coords = 1:2, 
-                                               specRange = 5:430, standardize = FALSE, 
-                                               plotName = plotNames[i])
-  
-  print(paste0("rasters calculated for ", plotNames[i], " starting new plot..."))
-}
-
+corr_harv_TRAIT_Q3 <- demon_BayCorrTRAIT(matRES = Div_trait_spec_alpha, 
+                                         nChains = 4, nIters = 2000, nCores = 20, 
+                                         pathSave = "Results/HARV/Bay_Trait_Q3_correlations.RData", 
+                                         Q = 3)
