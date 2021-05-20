@@ -135,7 +135,7 @@ demon_BayCorrTRAIT <- function(matRES, nChains, nIters, nCores, pathSave, Q) {
                   prior(lkj(1), class = rescor)) 
   
   mat2 <- matRES %>% 
-    filter(qHill == q) %>% 
+    filter(qHill == Q) %>% 
     mutate(MSDz = MSD) %>% 
     select(plotID, MFD, MFDz, Rao_Trait, 
            M_Trait, mPrime_Trait, qHt_Trait, qEt_Trait, qDT_Trait, qDTM_Trait, 
