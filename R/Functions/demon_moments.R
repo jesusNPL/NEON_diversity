@@ -51,7 +51,9 @@ demon_momentsSPEC <- function(spectra, nPlots, plotNames, specRange) {
 
 
 ##### Function to estimate trait and phylogenetic moments #####
-## spectra = spectra data
+## comm = community data
+## trait = trait values
+## phylo = phylogenetic tree 
 ## nPlots = number of plots
 ## plotNames = names of the plots
 ## specRange = position of the bands in the data frame.
