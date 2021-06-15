@@ -1,5 +1,7 @@
 ##### Functions to perform phylogenetic imputation #####
 
+## makePVR is a wrapper function that decompose phylogenetic distance matrix 
+# derived from tree into a set of orthogonal vectors
 
 makePVR <- function(phylo, multiPhylo) {
   print("Starting phylogenetic decomposition for best tree ...")
@@ -12,6 +14,11 @@ makePVR <- function(phylo, multiPhylo) {
   PVRs <- list(pvrBest = pvr, pvrSample = pvrx)
 }
 
+## demon_ImpTrait is a wrapper that allow the simultaneous imputation of missing traits
+# using phylogenetic orthogonal vectors.
+
+# traits = data.frame of SxT dimensions, T = traits and S = species
+# traitNames = trait names
 
 demon_ImpTrait <- function(traits, traitNames, phylo, multiPhylo, 
                            iters = 100, ntrees = 250, pvr, pvrSamp) { 
@@ -40,18 +47,7 @@ demon_ImpTrait <- function(traits, traitNames, phylo, multiPhylo,
   
   print("Imputation for best tree, done...")
   
-  #bestImp <- list(impTraits, err)
-  
   ##### Perform imputation using a multiphylo
-  
-  #pvrx <- list()
-  # Extract PVRs
-  #for(i in 1:length(multiPhylo)) {
-   # print(paste0("Starting phylogenetic decomposition for tree ", i, " ..."))
-    #phy <- multiPhylo[[i]] 
-    # Decomposing phylogenetic distance matrix derived from tree into a set of orthogonal vectors
-    #pvrx[[i]] <- PVR::PVRdecomp(phy)
-  #}
   
   # Imputed traits
   impTraits_mtphylo <- list()
