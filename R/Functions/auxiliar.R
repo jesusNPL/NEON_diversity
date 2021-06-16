@@ -84,3 +84,22 @@ makeTable_traits <- function(div1, div2) {
   return(tab)
 }
 
+##### Make tables moments #####
+# div1 = diversity in plant dimensions
+# div2 = spectral measures
+
+makeTable_moments <- function(divTaxo, divTrait, divPhylo, divSpec) { 
+  library(dplyr)
+  library(tidyr)
+  
+  divTaxoSpec <- full_join(divTaxo, divSpec, by = "plotID")
+  divTraitSpec <- full_join(divTrait, divSpec, by = "plotID")
+  divPhyloSpec <- full_join(divPhylo, divSpec, by = "plotID")
+  
+  tbl_moments <- list(taxoSpec = divTaxoSpec, 
+                      traitSpec = divTraitSpec, 
+                      phyloSpec = divPhyloSpec)
+  
+  return(tbl_moments)
+  
+}
