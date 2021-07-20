@@ -197,8 +197,11 @@ demon_TraitDistance <- function(comm, trait, abundance = TRUE, Q, plotNames, nPl
   tdiv <- numeric(length = nPlots) # Compute Functional Divergence (FDiv)
   tdis <- numeric(length = nPlots) # Compute Functional Dispersion (FDis) 
   
+  # start calculations
+  comm2 <- as.matrix(comm)
+  
   for(i in 1:nPlots) {
-    spNames <- comm[i, ] > 0 
+    spNames <- comm2[i, ] > 0 
     selection <- names(spNames[spNames == TRUE])
     
     nSP[i] <- length(selection)
