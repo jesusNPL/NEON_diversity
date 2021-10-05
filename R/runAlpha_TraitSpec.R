@@ -8,9 +8,6 @@ library(gawdis)
 source("R/NEON_diversity/R/Functions/AlphaSpecDIV.R")
 source("R/NEON_diversity/R/Functions/auxiliar.R")
 
-#### Prepare data #####
-load("DATA/RData/HARV_SS.RData") # Spectral species
-
 ### Clean vegetation community data 
 load("DATA/Harvard_NEON/Data/harv_matchData.RData") # HARV data
 rm(harv_taxonomy, matchTrait, matchPhylo)
@@ -122,3 +119,87 @@ corr_harv_TRAIT_Q3 <- demon_BayCorrTRAIT(matRES = Div_trait_spec_alpha,
                                          nChains = 4, nIters = 5000, nCores = 14, 
                                          pathSave = "Results/HARV/Bay_Trait_Q3_correlations.RData", 
                                          Q = 3)
+
+##### Run spectral diversity by wavebands #####
+
+library(dplyr)
+library(tidyr)
+library(picante)
+library(fundiversity)
+source("R/NEON_diversity/R/Functions/AlphaSpecDIV.R")
+source("R/NEON_diversity/R/Functions/auxiliar.R")
+
+#VIS <- c(400:700)
+VIS <- 5:68
+#NIR <- c(800:1300)
+NIR <- 89:189
+#SWIR1 <- c(1550:1800)
+SWIR1 <- 239:289
+#SWIR2 <- c(2000:2400)
+SWIR2 <- 329:409
+
+load("DATA/RData/HARV_SS.RData") # Spectral species
+rm(ss_NO_threshold)
+
+## Spectra data range from column 4 to 430
+plotNames <- unique(ss_threshold$plotID)
+nPlots <- length(plotNames)
+#Range <- 5:430 ## Spectra data range from column 5 to 430
+QS <- c(0, 1, 2, 3) # different q values
+
+#spec_harv <- ss_threshold[, 4:430]
+
+spec_harv_vis <- list()
+spec_harv_nir <- list()
+spec_harv_swir1 <- list()
+spec_harv_swir2 <- list()
+
+for(i in 1:length(QS)) {
+  
+  print(paste0("Starting calculations under ", QS[i], "..."))
+  
+  # VIS
+  spec_harv_vis[[i]] <- demon_DivDistance(spectra = ss_threshold, 
+                                          plotNames = plotNames, 
+                                          nPlots = nPlots, 
+                                          specRange = VIS, 
+                                          Q = QS[i], 
+                                          standardize = FALSE, 
+                                          gowDist = TRUE)
+  # NIR
+  spec_harv_nir[[i]] <- demon_DivDistance(spectra = ss_threshold, 
+                                          plotNames = plotNames, 
+                                          nPlots = nPlots, 
+                                          specRange = NIR, 
+                                          Q = QS[i], 
+                                          standardize = FALSE, 
+                                          gowDist = TRUE)
+  # SWIR1
+  spec_harv_swir1[[i]] <- demon_DivDistance(spectra = ss_threshold, 
+                                          plotNames = plotNames, 
+                                          nPlots = nPlots, 
+                                          specRange = SWIR1, 
+                                          Q = QS[i], 
+                                          standardize = FALSE, 
+                                          gowDist = TRUE)
+  # SWIR2
+  spec_harv_swir2[[i]] <- demon_DivDistance(spectra = ss_threshold, 
+                                          plotNames = plotNames, 
+                                          nPlots = nPlots, 
+                                          specRange = SWIR2, 
+                                          Q = QS[i], 
+                                          standardize = FALSE, 
+                                          gowDist = TRUE)
+}
+
+spec_harv_vis_table <- do.call(rbind, spec_harv_vis)
+spec_harv_nir_table <- do.call(rbind, spec_harv_nir)
+spec_harv_swir1_table <- do.call(rbind, spec_harv_swir1)
+spec_harv_swir2_table <- do.call(rbind, spec_harv_swir2)
+
+### save results 
+save(spec_harv_vis, spec_harv_vis_table, 
+     spec_harv_nir, spec_harv_nir_table, 
+     spec_harv_swir1, spec_harv_swir1_table, 
+     spec_harv_swir2, spec_harv_swir2_table, 
+     file = "Results/HARV/div_spec_harv_by_waves.RData")
