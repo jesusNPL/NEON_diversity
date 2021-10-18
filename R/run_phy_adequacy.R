@@ -35,7 +35,7 @@ demonTreeFit <- function(tree, traitSims, ncores = 20) {
     aics$Models <- c("BM", "OU")
     aics$Simulation <- i 
     print(aics)
-    models[[i]] <- aics
+    models[[i]] <- data.frame(aics)
     
     
   }
@@ -69,4 +69,5 @@ phy <- subset_phylo(tree = neon_tree, sp_keep = spp)
 NEON_trait_evol_sim <- demonTreeFit(tree = phy, traitSims = trait_sims, ncores = 30)
 
 ### Save results
-save(NEON_trait_evol_sim, file = "Results/Tree_accuracy/NEON_trait_evol_sim.csv")
+save(NEON_trait_evol_sim, file = "Results/Tree_accuracy/NEON_trait_evol_sim.RData")
+write.csv(NEON_trait_evol_sim, file = "Results/Tree_accuracy/NEON_trait_evol_sim.csv")
