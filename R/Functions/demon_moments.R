@@ -58,7 +58,7 @@ demon_momentsSPEC <- function(spectra, nPlots, plotNames, specRange) {
 ## plotNames = names of the plots
 ## specRange = position of the bands in the data frame.
 
-demon_momentsTraitPhylo <- function(comm, trait, phylo, plotNames, nPlots) {
+demon_momentsTraitPhylo <- function(comm, trait, phylo, plotNames, nPlots, siteName, maxIter) {
   require(moments)
   require(picante)
   
@@ -101,6 +101,17 @@ demon_momentsTraitPhylo <- function(comm, trait, phylo, plotNames, nPlots) {
     trait_comm <- trait[trait$Species %in% selection, ]
     phylo_comm <- phyDat[phyDat$Species %in% selection, ]
     
+    ## Trait distance to be used in moments calculations 
+    if (length(selection) == 2) {
+      trait_comm_dis <- FD::gowdis(trait_comm[, 2:11])
+    } else if (length(selection) <= 2) { 
+      trait_com_dis <- 1
+      } else {
+      trait_comm_dis <- gawdis::gawdis(trait_comm[, 2:11], 
+                                       w.type = "optimized", 
+                                       opti.maxiter = maxIter)
+    }
+    
     ## Taxonomic moments
     comm_tmp <- t(comm[i, ])
     colnames(comm_tmp) <- "Abun"
@@ -116,12 +127,12 @@ demon_momentsTraitPhylo <- function(comm, trait, phylo, plotNames, nPlots) {
     kurtTaxo[i] <- kurtosis(na.omit(comm_tmp))
     
     ## Trait moments
-    meanTrait[i] <- mean(na.omit(trait_comm[, 2]))
-    medianTrait[i] <- median(na.omit(trait_comm[, 2]))
-    sdTrait[i] <- sd(na.omit(trait_comm[, 2]))
-    varTrait[i] <- var(na.omit(trait_comm[, 2]))
-    skewTrait[i] <- skewness(na.omit(trait_comm[, 2]))
-    kurtTrait[i] <- kurtosis(na.omit(trait_comm[, 2]))
+    meanTrait[i] <- mean(na.omit(trait_comm_dis))
+    medianTrait[i] <- median(na.omit(trait_comm_dis))
+    sdTrait[i] <- sd(na.omit(trait_comm_dis))
+    varTrait[i] <- var(na.omit(trait_comm_dis))
+    skewTrait[i] <- skewness(na.omit(trait_comm_dis))
+    kurtTrait[i] <- kurtosis(na.omit(trait_comm_dis))
     
     ## Phylogenetic moments
     meanPhylo[i] <- mean(na.omit(phylo_comm[, 2]))
@@ -132,19 +143,19 @@ demon_momentsTraitPhylo <- function(comm, trait, phylo, plotNames, nPlots) {
     kurtPhylo[i] <- kurtosis(na.omit(phylo_comm[, 2]))
   } 
   # Taxonomy
-  momentsTaxo <- data.frame(plotNames, meanTaxo, medianTaxo, sdTaxo, varTaxo, 
+  momentsTaxo <- data.frame(siteName, plotNames, meanTaxo, medianTaxo, sdTaxo, varTaxo, 
                               skewTaxo, kurtTaxo) 
-  names(momentsTaxo) <- c("plotID", "mean_Taxo", "median_Taxo", "sd_Taxo", 
+  names(momentsTaxo) <- c("Site", "plotID", "mean_Taxo", "median_Taxo", "sd_Taxo", 
                             "var_Taxo", "skew_Taxo", "kurt_Taxo")
   # Trait
-  momentsTraits <- data.frame(plotNames, meanTrait, medianTrait, sdTrait, varTrait, 
+  momentsTraits <- data.frame(siteName, plotNames, meanTrait, medianTrait, sdTrait, varTrait, 
                             skewTrait, kurtTrait) 
-  names(momentsTraits) <- c("plotID", "mean_Trait", "median_Trait", "sd_Trait", 
+  names(momentsTraits) <- c("Site", "plotID", "mean_Trait", "median_Trait", "sd_Trait", 
                           "var_Trait", "skew_Trait", "kurt_Trait")
   # Phylogeny
-  momentsPhylo <- data.frame(plotNames, meanPhylo, medianPhylo, sdPhylo, varPhylo, 
+  momentsPhylo <- data.frame(siteName, plotNames, meanPhylo, medianPhylo, sdPhylo, varPhylo, 
                               skewPhylo, kurtPhylo) 
-  names(momentsPhylo) <- c("plotID", "mean_Phylo", "median_Phylo", "sd_Phylo", 
+  names(momentsPhylo) <- c("Site", "plotID", "mean_Phylo", "median_Phylo", "sd_Phylo", 
                             "var_Phylo", "skew_Phylo", "kurt_Phylo")
   
   momentos <- list(moments_taxo = momentsTaxo, 

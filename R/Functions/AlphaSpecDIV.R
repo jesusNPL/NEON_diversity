@@ -137,7 +137,7 @@ demon_PhyloDistance <- function(comm, phylo, abundance = TRUE, Q, plotNames) {
   Scheiner <- FTD.comm(tdmat = cophenetic(phylo), spmat = comm, q = Q, abund = TRUE)$com.FTD
 
   PD <- picante::ses.pd(samp = comm, tree = phylo, 
-                               null.model = "taxa.labels", )  
+                               null.model = "taxa.labels")  
   MPD <- picante::ses.mpd(samp = comm, cophenetic(phylo), 
                                  null.model = "taxa.labels", abundance.weighted = TRUE) 
   

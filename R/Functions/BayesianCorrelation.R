@@ -225,7 +225,8 @@ demon_BayCorrMOMENTS <- function(momentsRES, nChains, nIters, nCores,
     
     dataTx <- taxo[, c(i + 1, i + 7)] 
     headersTx <- names(dataTx)
-    formTx <- as.formula(paste(headersTx[1], " ~ ", paste(headersTx[2], collapse = "+"))) 
+    formTx <- as.formula(paste(headersTx[1], " ~ ", 
+                               paste(headersTx[2], collapse = "+"))) 
     
     fitTx <- brm(formTx, data = dataTx, 
                #family = student(), 
