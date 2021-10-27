@@ -23,7 +23,8 @@ god_BayReg_phylo <- function(resMetrics, Q, nMetrics, pathSave,
     
     formulas <- as.formula(paste(headers[3], 
                                  " ~ ", 
-                                 paste(headers[4], paste0("+ (1|Site)"), 
+                                 paste(headers[4], 
+                                       paste0("+ (1|Site)"), 
                                        collapse = "+"))) 
     
     ### Run 

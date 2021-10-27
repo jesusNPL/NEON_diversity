@@ -22,9 +22,9 @@ god_BayReg_trait_dis <- function(resMetrics, Q, nMetrics, pathSave,
     data <- resMetrics[, c(1:2, i + 2, i + 11)]
     headers <- names(data)
     
-    formulas <- as.formula(paste(headers[3], 
-                                 " ~ ", 
-                                 paste(headers[4], paste0("+ (1|Site)"), 
+    formulas <- as.formula(paste(headers[3], " ~ ", 
+                                 paste(headers[4], 
+                                       paste0("+ (1|Site)"), 
                                        collapse = "+"))) 
     
     ### Run 
@@ -90,7 +90,8 @@ god_BayReg_trait_met <- function(resMetrics, Q, nMetrics = 5, pathSave,
     
     formulas <- as.formula(paste(headers[3], 
                                  " ~ ", 
-                                 paste(headers[4], paste0("+ (1|Site)"), 
+                                 paste(headers[4], 
+                                       paste0("+ (1|Site)"), 
                                        collapse = "+"))) 
     
     ### Run 
