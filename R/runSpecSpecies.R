@@ -5,7 +5,7 @@ packages <- c("fpc", "NbClust", "cluster", "factoextra", "tidyr", "dplyr", "gawd
 
 sapply(packages, require, character.only = TRUE)
 
-source("R/Functions/SpecSpecies.R")
+source("R/NEON_diversity/R/Functions/SpecSpecies.R")
 
 ###### Load and prepare data #####
 
@@ -98,7 +98,8 @@ names(thrs) <- plotNames
 thrs
 ## remove plotID = P_23 because the large amount of NA
 
-harv_spec_clean <- harv_spec %>% filter(plotID != "P_23")
+harv_spec_clean <- harv_spec %>% 
+  filter(plotID != "P_23")
 
 thrs_2 <- thrs[-17]
 thrs_2

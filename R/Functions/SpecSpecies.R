@@ -7,7 +7,7 @@
 # metrics = vector of metrics to be evaluated
 # Ncores = number of cores to be used
 
-demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics, Ncores) { 
+demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics, Ncores, progress = FALSE) { 
   
   if ( ! ("NbClust" %in% installed.packages())) {install.packages("NbClust", dependencies = TRUE)} 
   if ( ! ("dplyr" %in% installed.packages())) {install.packages("dplyr", dependencies = TRUE)}
@@ -32,7 +32,11 @@ demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics,
   
   for(j in 1:length(metrics)) {
     
-    svMisc::progress(j, max.value = length(metrics))
+    if (progress == TRUE) { 
+      
+      svMisc::progress(j, max.value = length(metrics))
+
+    }
     
     res <- NbClust::NbClust(data = spec, 
                             diss = Dist_mat, 
@@ -72,7 +76,7 @@ demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics,
 # nPlots = number of plots
 # plotNames = name of each plot
 
-demon_SS <- function(spectra, threshold, nPlots, plotNames) { 
+demon_SS <- function(spectra, threshold, nPlots, plotNames, progress = FALSE) { 
   
   if ( ! ("cluster" %in% installed.packages())) {install.packages("cluster", dependencies = TRUE)} 
   if ( ! ("dplyr" %in% installed.packages())) {install.packages("dplyr", dependencies = TRUE)}
@@ -81,8 +85,17 @@ demon_SS <- function(spectra, threshold, nPlots, plotNames) {
   
   SS <- list()
   
-  for(i in 1:nPlots) { 
-    svMisc::progress(i, max.value = nPlots)
+  for(i in 1:nPlots) {
+    
+    if (progress == TRUE) { 
+      
+      svMisc::progress(j, max.value = length(metrics))
+      
+    }
+    
+    if (threshold[i] <= 3) {
+      threshold[i] <- 4
+    }
     
     th <- threshold[i]
     
@@ -90,7 +103,7 @@ demon_SS <- function(spectra, threshold, nPlots, plotNames) {
     # remove NAs
     spec <- na.omit(specPlot[, 5:430])
     # Scale spectra
-    spec <- scale(spec)
+    spec <- scale(spec) 
     # Perform  robust version of K-means
     robustK <- pam(specPlot, th) 
     

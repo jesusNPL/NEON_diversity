@@ -72,7 +72,7 @@ nQ <- length(QS)
   
 #}
 
-###################### ------------------- Multilelvel 2 ----------------------------- ######################
+###################### ------------------- Multilevel 2 ----------------------------- ######################
   
 ##### Run Bayesian regressions for NEON trait-spec classic diversity metrics #####
   
@@ -86,23 +86,45 @@ QS <- c("q0", "q1", "q2", "q3")
 # Q 0
 reg_q0 <- god_BayReg_trait_met_ML2(resMetrics = trait_spec_NEON_table_MET_q0, 
                                    Q = QS[1], nMetrics = 5, 
-                                   pathSave = paste0("Results/Regressions/trait-spec/reg_Trait_Spec_MET_", QS[1] ,"_ML2.RData"), 
+                                   pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_MET_", QS[1] ,"_ML2.RData"), 
                                    nChains = 4, nIters = 2000, nCores = 24, engine = "cmdstanr")
 
 # Q 1
 reg_q1 <- god_BayReg_trait_met_ML2(resMetrics = trait_spec_NEON_table_MET_q1, 
                                    Q = QS[2], nMetrics = 5, 
-                                   pathSave = paste0("Results/Regressions/trait-spec/reg_Trait_Spec_MET_", QS[2] ,"_ML2.RData"), 
+                                   pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_MET_", QS[2] ,"_ML2.RData"), 
                                    nChains = 4, nIters = 2000, nCores = 24, engine = "cmdstanr")
 
 # Q 2
 reg_q2 <- god_BayReg_trait_met_ML2(resMetrics = trait_spec_NEON_table_MET_q2, 
                                    Q = QS[3], nMetrics = 5, 
-                                   pathSave = paste0("Results/Regressions/trait-spec/reg_Trait_Spec_MET_", QS[3] ,"_ML2.RData"), 
+                                   pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_MET_", QS[3] ,"_ML2.RData"), 
                                    nChains = 4, nIters = 2000, nCores = 24, engine = "cmdstanr")
 
 # Q 3
 reg_q3 <- god_BayReg_trait_met_ML2(resMetrics = trait_spec_NEON_table_MET_q3, 
                                    Q = QS[4], nMetrics = 5, 
-                                   pathSave = paste0("Results/Regressions/trait-spec/reg_Trait_Spec_MET_", QS[4] ,"_ML2.RData"), 
+                                   pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_MET_", QS[4] ,"_ML2.RData"), 
                                    nChains = 4, nIters = 2000, nCores = 24, engine = "cmdstanr")
+
+##### ML2 distance based metrics
+## Q 0
+reg_q0 <- god_BayReg_trait_dis_ML2(resMetrics = trait_spec_NEON_table_q0, 
+                               Q = QS[1], nMetrics = 9, 
+                               pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_DIS_", QS[1], "_ML2.RData"), 
+                               nChains = 4, nIters = 10000, nCores = 24, engine = "cmdstanr") 
+## Q 1
+reg_q1 <- god_BayReg_trait_dis_ML2(resMetrics = trait_spec_NEON_table_q1, 
+                               Q = QS[2], nMetrics = 9, 
+                               pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_DIS_", QS[2], "_ML2.RData"), 
+                               nChains = 4, nIters = 10000, nCores = 24, engine = "cmdstanr") 
+## Q 2
+reg_q2 <- god_BayReg_trait_dis_ML2(resMetrics = trait_spec_NEON_table_q2, 
+                               Q = QS[3], nMetrics = 9, 
+                               pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_DIS_", QS[3], "_ML2.RData"), 
+                               nChains = 4, nIters = 10000, nCores = 24, engine = "cmdstanr") 
+## Q 3
+reg_q3 <- god_BayReg_trait_dis_ML2(resMetrics = trait_spec_NEON_table_q3, 
+                               Q = QS[4], nMetrics = 9, 
+                               pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_DIS_", QS[4], "_ML2.RData"), 
+                               nChains = 4, nIters = 10000, nCores = 24, engine = "cmdstanr")

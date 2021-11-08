@@ -15,7 +15,7 @@ make_SSppComm <- function(spectra) {
 # comm = community data matrix
 # q1 to q3 = different levels of q
 
-demon_SSppDIV <- function(comm, q1, q2, q3, plotNames, nPlots) {
+demon_SSppDIV <- function(comm, q1, q2, q3, plotNames, nPlots, site) {
   
   alphas <- data.frame(matrix(ncol = 6, nrow = nPlots))
   
@@ -32,30 +32,41 @@ demon_SSppDIV <- function(comm, q1, q2, q3, plotNames, nPlots) {
     alfa3 <- d(comm[i, ], q = q3, boot = TRUE, boot.arg = list(num.iter = 1000))
     alphas[i, 5] <- alfa3[[1]]
     alphas[i, 6] <- alfa3[[2]]
-  }
+  } 
+  
   names(alphas) <- c("SRich", "SRichSErr", "Shannon", "ShannonSErr", "Simpson", "SimpsonSErr")
+  
+  comm <- round(comm + 0.5)
+  
   alphas$H <- diversity(comm)
   alphas$Simp <- diversity(comm, "simpson")
   alphas$invSimp <- diversity(comm, "inv")
   
   if (!identical(all.equal(comm, round(comm)), TRUE)) {
-    comm <- wisconsin(comm)
-    comm <- round(comm*100, 0) 
-    ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
-    alphas$unbiasSimp <- rarefy(comm, 2) - 1
+    comm2 <- decostand(comm, "max")
+    comm2 <- wisconsin(comm2)
+    comm2 <- round(comm2*10) 
     ## Fisher alpha
-    alphas$Fisher_alpha <- fisher.alpha(comm)
+    alphas$Fisher_alpha <- fisher.alpha(comm2)
+    ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
+    alphas$unbiasSimp <- rarefy(comm2, 2) - 1
+    
   } else { 
-    ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
-    alphas$unbiasSimp <- rarefy(comm, 2) - 1
+    ## Fisher alpha 
+    comm2 <- decostand(comm, "total")
+    comm2 <- wisconsin(comm2)
+    comm2 <- round(comm2*2) 
     ## Fisher alpha
-    alphas$Fisher_alpha <- fisher.alpha(comm)
-    }
+    alphas$Fisher_alpha <- fisher.alpha(comm2)
+    ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
+    alphas$unbiasSimp <- rarefy(comm2, 2) - 1
+    } 
   ## Species richness (S) and Pielou's evenness (J):
   alphas$S <- specnumber(comm) ## rowSums(BCI > 0) does the same...
   alphas$J_Pielou <- alphas$H/log(alphas$S)
   ## Plot all
   alphas$plotID <- plotNames
+  alphas$Site <- site
   
   print("Alpha diversity computed at plot level... ")
   
@@ -102,7 +113,7 @@ demon_SSppDIV <- function(comm, q1, q2, q3, plotNames, nPlots) {
   names(gammaSite) <- c("D.Value", "StdErr", "q", "Diversity")
   
   sitediv <- rbind(alphaSite, betaSite, gammaSite)
-  
+  sitediv$Site <- site
   diversities <- list("commDiv" = alphas, "siteDiv" = sitediv)
   
   return(diversities)
