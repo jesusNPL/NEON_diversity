@@ -481,3 +481,67 @@ taxo_spec_COM_obs_NEON_table <- full_join(betaGround_NEON_table,
 save(taxo_spec_COM_thresh_NEON_table, 
      taxo_spec_COM_obs_NEON_table, 
      file = "Results/taxoDiversity/taxo_spec_BETA_NEON.RData")
+
+##### Combine metrics based SAM #####
+library(tidyverse)
+
+##### Load and arrange data #####
+### Phylo diversity
+load("Results/phyloDiversity/phylo_DIS_tables.RData")
+
+phylo_NEON_table_q0 <- phylo_NEON_table_q0 %>%
+  dplyr::select(Site, plotID, everything())
+
+phylo_NEON_table_q1 <- phylo_NEON_table_q1 %>%
+  dplyr::select(Site, plotID, everything())
+
+phylo_NEON_table_q2 <- phylo_NEON_table_q2 %>%
+  dplyr::select(Site, plotID, everything())
+
+phylo_NEON_table_q3 <- phylo_NEON_table_q3 %>%
+  dplyr::select(Site, plotID, everything())
+
+### Spectral diversity
+spec_NEON_div <- readRDS("Results/spectralDiversity/spectral_NEON_SAM_q0.rds")
+
+spec_NEON_div <- spec_NEON_div %>%
+  dplyr::select(Site, plotID, everything())
+
+##### Match tables and prepare regressions #####
+
+##### Spectral diversity
+spec_NEON_div_sel <- spec_NEON_div %>%
+  dplyr::select(Site, plotID, SD, MSD, M, mPrime, qHt, qEt, qDT, qDTM, MSm, Range) %>%
+  mutate(SD2 = SD, MSD2 = MSD) %>%
+  dplyr::select(Site, plotID, SD, SD2, MSD, MSD2, everything())
+
+names(spec_NEON_div_sel) <- c(
+  "Site", "plotID", "SD", "SD2", "MSD", "MSD2",
+  "M_s", "mPrime_s", "qHt_s", "qEt_s", "qDT_s", "qDTM_s",
+  "MSm", "Range"
+)
+
+##### Phylogenetic diversity
+### Q 0
+names(phylo_NEON_table_q0)
+names(spec_NEON_div)
+
+## Phylogenetic diversity
+phylo_NEON_table_q0_sel <- phylo_NEON_table_q0 %>%
+  dplyr::select(Site, plotID, PD, PDz, MPD, MPDz, M, mPrime, qHt, qEt, qDT, qDTM)
+
+names(phylo_NEON_table_q0_sel) <- c(
+  "Site", "plotID", "PD", "PDz", "MPD", "MPDz",
+  "M_p", "mPrime_p", "qHt_p", "qEt_p", "qDT_p", "qDTM_p"
+)
+
+## combine spectral and phylogenetic diversity metrics
+phylo_spec_NEON_table_SAM_q0 <- full_join(phylo_NEON_table_q0_sel, spec_NEON_div_sel,
+                                      by = c("Site", "plotID")
+)
+
+##### Save matched tables #####
+
+save(phylo_spec_NEON_table_SAM_q0,
+     file = "Results/RegDATA/phylo_spec_DIS_SAM_NEON.RData"
+)
