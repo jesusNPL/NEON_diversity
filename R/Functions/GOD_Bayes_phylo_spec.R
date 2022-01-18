@@ -1,5 +1,5 @@
 god_BayReg_phylo <- function(resMetrics, Q, nMetrics, pathSave,
-                             nChains, nIters, nCores, engine) {
+                             nChains, nIters, nCores, control, engine) {
   library(brms)
   library(cmdstanr)
   library(rstan)
@@ -36,7 +36,8 @@ god_BayReg_phylo <- function(resMetrics, Q, nMetrics, pathSave,
       data = data,
       iter = nIters,
       warmup = nIters / 5,
-      cores = nCores,
+      cores = nCores, 
+      control = control, 
       backend = engine
     )
     ## extract robust Bayes R2
