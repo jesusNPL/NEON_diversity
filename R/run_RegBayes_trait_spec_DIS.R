@@ -128,3 +128,76 @@ reg_q3 <- god_BayReg_trait_dis_ML2(resMetrics = trait_spec_NEON_table_q3,
                                Q = QS[4], nMetrics = 9, 
                                pathSave = paste0("Results/Regressions/trait-spec/ML2/reg_Trait_Spec_DIS_", QS[4], "_ML2.RData"), 
                                nChains = 4, nIters = 10000, nCores = 24, engine = "cmdstanr")
+
+
+########## RUN Bayesian regressions using SAM #############
+
+load("Results/RegDATA/SAM/trait_spec_DIS_SAM_NEON.RData")
+
+source("R/NEON_diversity/R/Functions/GOD_Bayes_trait_spec.R")
+
+### Inits
+QS <- c("q0", "q1", "q2", "q3")
+
+nQ <- length(QS) 
+dir.create("Results/Regressions/trait-spec/SAM")
+
+### Run Bayesian models
+#for(j in 1:nQ) { 
+## Q 0
+god_BayReg_trait_dis(resMetrics = trait_spec_NEON_table_SAM_q0, 
+                     Q = QS[1], nMetrics = 9, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_DIS_SAM_", QS[1] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr") 
+## Q 1
+god_BayReg_trait_dis(resMetrics = trait_spec_NEON_table_SAM_q1, 
+                     Q = QS[2], nMetrics = 9, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_DIS_SAM_", QS[2] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr") 
+## Q 2
+god_BayReg_trait_dis(resMetrics = trait_spec_NEON_table_SAM_q2, 
+                     Q = QS[3], nMetrics = 9, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_DIS_SAM_", QS[3] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr") 
+## Q 3
+god_BayReg_trait_dis(resMetrics = trait_spec_NEON_table_SAM_q3, 
+                     Q = QS[4], nMetrics = 9, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_DIS_SAM_", QS[4] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr")
+
+rm(list = ls())
+
+##### Run Bayesian regressions for NEON trait-spec classic diversity metrics #####
+
+load("Results/RegDATA/SAM/trait_spec_MET_SAM_NEON.RData")
+
+source("R/NEON_diversity/R/Functions/GOD_Bayes_trait_spec.R")
+
+### Inits
+QS <- c("q0", "q1", "q2", "q3")
+
+nQ <- length(QS) 
+dir.create("Results/Regressions/trait-spec/SAM")
+
+### Run Bayesian models
+#for(j in 1:nQ) { 
+## Q 0
+god_BayReg_trait_met(resMetrics = trait_spec_NEON_table_MET_SAM_q0, 
+                     Q = QS[1], nMetrics = 5, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_MET_SAM_", QS[1] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr") 
+## Q 1
+god_BayReg_trait_met(resMetrics = trait_spec_NEON_table_MET_SAM_q1, 
+                     Q = QS[2], nMetrics = 5, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_MET_SAM_", QS[2] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr") 
+## Q 2
+god_BayReg_trait_met(resMetrics = trait_spec_NEON_table_MET_SAM_q2, 
+                     Q = QS[3], nMetrics = 5, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_MET_SAM_", QS[3] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr") 
+## Q 3
+god_BayReg_trait_met(resMetrics = trait_spec_NEON_table_MET_SAM_q3, 
+                     Q = QS[4], nMetrics = 5, 
+                     pathSave = paste0("Results/Regressions/trait-spec/SAM/reg_Trait_Spec_MET_SAM_", QS[4] ,".RData"), 
+                     nChains = 4, nIters = 5000, nCores = 24, engine = "cmdstanr")

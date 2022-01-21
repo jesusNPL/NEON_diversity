@@ -112,3 +112,44 @@ for(j in 1:nhabitat) {
                    control = list(adapt_delta = 0.99), engine = "cmdstanr") 
 
 }
+
+
+########## RUN Bayesian regressions using SAM #############
+
+load("Results/RegDATA/SAM/phylo_spec_DIS_SAM_NEON.RData")
+
+source("R/NEON_diversity/R/Functions/GOD_Bayes_phylo_spec.R")
+
+### Inits
+QS <- c("q0", "q1", "q2", "q3")
+nQ <- length(QS)
+
+dir.create("Results/Regressions/phylo-spec/SAM")
+  
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
+                 Q = QS[1], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
+                 QS[1], ".RData"), 
+                 nChains = 4, nIters = 5000, nCores = 24, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
+
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
+                 Q = QS[2], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
+                                   QS[2], ".RData"), 
+                 nChains = 4, nIters = 5000, nCores = 24, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
+
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
+                 Q = QS[3], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
+                                   QS[3], ".RData"), 
+                 nChains = 4, nIters = 5000, nCores = 24, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
+
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
+                 Q = QS[4], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
+                                   QS[4], ".RData"), 
+                 nChains = 4, nIters = 5000, nCores = 24, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
