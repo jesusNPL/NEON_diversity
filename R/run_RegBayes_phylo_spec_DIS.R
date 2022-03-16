@@ -124,32 +124,62 @@ source("R/NEON_diversity/R/Functions/GOD_Bayes_phylo_spec.R")
 QS <- c("q0", "q1", "q2", "q3")
 nQ <- length(QS)
 
-dir.create("Results/Regressions/phylo-spec/SAM")
-  
+dir.create("Results/Regressions/phylo-spec/SAM/Scale")
+
+##### Regressions with no scale #####
 god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
                  Q = QS[1], nMetrics = 10, 
                  pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
-                 QS[1], ".RData"), 
-                 nChains = 4, nIters = 5000, nCores = 24, 
+                 QS[1], ".RData"), scale = FALSE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
                  control = list(adapt_delta = 0.99), engine = "cmdstanr")
 
-god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q1, 
                  Q = QS[2], nMetrics = 10, 
                  pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
-                                   QS[2], ".RData"), 
-                 nChains = 4, nIters = 5000, nCores = 24, 
+                                   QS[2], ".RData"), scale = FALSE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
                  control = list(adapt_delta = 0.99), engine = "cmdstanr")
 
-god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
-                 Q = QS[3], nMetrics = 10, 
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q2, 
+                 Q = QS[3], nMetrics = 10,  
                  pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
-                                   QS[3], ".RData"), 
-                 nChains = 4, nIters = 5000, nCores = 24, 
+                                   QS[3], ".RData"),  scale = FALSE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
                  control = list(adapt_delta = 0.99), engine = "cmdstanr")
 
-god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q3, 
                  Q = QS[4], nMetrics = 10, 
                  pathSave = paste0("Results/Regressions/phylo-spec/SAM/reg_PhyloSpec_DIS_SAM_", 
-                                   QS[4], ".RData"), 
-                 nChains = 4, nIters = 5000, nCores = 24, 
+                                   QS[4], ".RData"),  scale = FALSE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
+
+##### regressions with scale #####
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q0, 
+                 Q = QS[1], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/Scale/reg_PhyloSpec_DIS_SAM_scale_", 
+                                   QS[1], ".RData"), scale = TRUE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
+
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q1, 
+                 Q = QS[2], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/Scale/reg_PhyloSpec_DIS_SAM_scale_", 
+                                   QS[2], ".RData"),  scale = TRUE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
+
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q2, 
+                 Q = QS[3], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/Scale/reg_PhyloSpec_DIS_SAM_scale_", 
+                                   QS[3], ".RData"), scale = TRUE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
+                 control = list(adapt_delta = 0.99), engine = "cmdstanr")
+
+god_BayReg_phylo(resMetrics = phylo_spec_NEON_table_SAM_q3, 
+                 Q = QS[4], nMetrics = 10, 
+                 pathSave = paste0("Results/Regressions/phylo-spec/SAM/Scale/reg_PhyloSpec_DIS_SAM_scale_", 
+                                   QS[4], ".RData"),  scale = TRUE,
+                 nChains = 4, nIters = 5000, nCores = 8, 
                  control = list(adapt_delta = 0.99), engine = "cmdstanr")
