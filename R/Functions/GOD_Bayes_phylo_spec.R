@@ -1,4 +1,4 @@
-god_BayReg_phylo <- function(resMetrics, Q, nMetrics, pathSave, scale = FALSE, 
+god_BayReg_phylo <- function(resMetrics, Q, nMetrics, pathSave, scale = FALSE,
                              nChains, nIters, nCores, control, engine) {
   library(brms)
   library(cmdstanr)
@@ -19,24 +19,22 @@ god_BayReg_phylo <- function(resMetrics, Q, nMetrics, pathSave, scale = FALSE,
 
     ### Inits
     data <- resMetrics[, c(1:2, i + 2, i + 12)]
-    headers <- names(data) 
-    
-    if (scale == FALSE) { 
+    headers <- names(data)
+
+    if (scale == FALSE) {
       formulas <- as.formula(paste(
-      headers[3],
-      " ~ ",
-      paste(headers[4],
-      paste0("+ (1|Site)"),
-      collapse = "+"
-      )
+        headers[3], " ~ ",
+        paste(headers[4], paste0("+ (1|Site)"),
+          collapse = "+"
+        )
       ))
     } else {
-      formulas <- as.formula(paste(headers[3],  " ~ ",  
-                                   paste0("scale(", headers[4], ")"),
-                                   paste0("+ (1|Site)"), 
-                                   collapse = "+" ) 
-      )
-      }
+      formulas <- as.formula(paste(headers[3],  " ~ ",
+        paste0("scale(", headers[4], ")"),
+        paste0("+ (1|Site)"),
+        collapse = "+"
+      ))
+    }
 
     ### Run
     fit <- brms::brm(
@@ -44,8 +42,8 @@ god_BayReg_phylo <- function(resMetrics, Q, nMetrics, pathSave, scale = FALSE,
       data = data,
       iter = nIters,
       warmup = nIters / 5,
-      cores = nCores, 
-      control = control, 
+      cores = nCores,
+      control = control,
       backend = engine
     )
     ## extract robust Bayes R2
@@ -100,22 +98,22 @@ god_BayReg_phylo_ML2 <- function(resMetrics, Q, nMetrics, pathSave,
     data <- resMetrics[, c(1:2, i + 2, i + 12)]
     headers <- names(data)
 
-    #formulas <- as.formula(paste(
-     # headers[3],
-      #" ~ ",
-      #paste(headers[4],
-       # paste0("+ (1|plotID)"),
-        #paste0("+ (1|Site)"),
-        #collapse = "+"
-      #)
-    #))
-    
-    formulas <- as.formula(paste(headers[3],  " ~ ",  
-                                 paste0("scale(", headers[4], ")"), 
-                                 paste0("+ (1|plotID)"),
-                                 paste0("+ (1|Site)"), 
-                                 collapse = "+" ) 
-    )
+    # formulas <- as.formula(paste(
+    # headers[3],
+    # " ~ ",
+    # paste(headers[4],
+    # paste0("+ (1|plotID)"),
+    # paste0("+ (1|Site)"),
+    # collapse = "+"
+    # )
+    # ))
+
+    formulas <- as.formula(paste(headers[3],  " ~ ",
+      paste0("scale(", headers[4], ")"),
+      paste0("+ (1|plotID)"),
+      paste0("+ (1|Site)"),
+      collapse = "+"
+    ))
 
     ### Run
     fit <- brms::brm(
