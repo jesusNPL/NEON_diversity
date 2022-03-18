@@ -1,6 +1,6 @@
 ### Function to run regressions between simple distance metrics
 god_BayReg_trait_dis <- function(resMetrics, Q, nMetrics,
-                                 pathSave, scale = FALSE,
+                                 pathSave, scaled = FALSE,
                                  nChains, nIters, nCores, engine) {
   library(brms)
   library(cmdstanr)
@@ -23,7 +23,7 @@ god_BayReg_trait_dis <- function(resMetrics, Q, nMetrics,
     data <- resMetrics[, c(1:2, i + 2, i + 11)]
     headers <- names(data)
 
-    if (scale == FALSE) {
+    if (scaled == FALSE) {
       formulas <- as.formula(paste(
         headers[3], " ~ ",
         paste(headers[4], paste0("+ (1|Site)"),
@@ -77,7 +77,7 @@ god_BayReg_trait_dis <- function(resMetrics, Q, nMetrics,
 
 ### Function to run regressions between classic metrics
 god_BayReg_trait_met <- function(resMetrics, Q, nMetrics = 5,
-                                 pathSave, scale = FALSE,
+                                 pathSave, scaled = FALSE,
                                  nChains, nIters, nCores, engine) {
   library(brms)
   library(cmdstanr)
@@ -100,7 +100,7 @@ god_BayReg_trait_met <- function(resMetrics, Q, nMetrics = 5,
     data <- resMetrics[, c(1:2, i + 2, i + 7)]
     headers <- names(data)
 
-    if (scale == FALSE) {
+    if (scaled == FALSE) {
       formulas <- as.formula(paste(
         headers[3], " ~ ",
         paste(headers[4], paste0("+ (1|Site)"),
