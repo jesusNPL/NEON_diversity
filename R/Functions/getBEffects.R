@@ -80,3 +80,32 @@ getFixefPosterior <- function(fits,
    #                    dimension = "phylo", 
     #                   Q = 0, 
      #                  level = "forest")
+
+##### Function to get R2 from models #####
+getR2Estimates <- function(fits, 
+                           robust = TRUE, 
+                           dimension, 
+                           Q, 
+                           level) { 
+  
+  if (robust == TRUE) { 
+    estimates <- res$R2_robust
+  } else {
+    estimates <- res$R2
+  }
+  
+  names(estimates) <- c("Estimate", "Est.Error", "Q2.5", "Q97.5", "metric", "metric_spec")
+  estimates$dimension <- dimension 
+  estimates$level <- level
+  estimates$Q <- Q 
+  
+  rownames(estimates) <- NULL 
+  return(estimates)
+  
+}
+
+#getR2Estimates(fits = res, 
+ #              robust = TRUE, 
+  #             dimension = "phylo", 
+   #            Q = 1, 
+    #           level = "forest")
