@@ -109,3 +109,47 @@ getR2Estimates <- function(fits,
   #             dimension = "phylo", 
    #            Q = 1, 
     #           level = "forest")
+
+##### Function for Hypothesis testing #####
+
+makeHypothesis <- function(fits, 
+                           estimates, 
+                           dimension, 
+                           Q, 
+                           level) { 
+  
+  hypLST <- list()
+  
+  for(i in 1:length(fits)) {
+    
+    fit <- fits[[i]]
+    
+    fixfit <- data.frame(fixef(fit))
+    param <- rownames(fixfit)[2]
+    slope <- fixfit[2, 1]
+    
+    if (slope > 0) {
+      hyp <- paste0(param, " > 0") 
+      h <- hypothesis(fit, hyp, class = "b")$hypothesis
+    } else {
+      hyp <- paste0(param, " < 0") 
+      h <- hypothesis(fit, hyp, class = "b")$hypothesis
+    }
+    
+    h$metric <- estimates[i, 5]
+    h$dimension <- dimension 
+    h$level <- level
+    h$Q <- Q 
+    
+    hypLST[[i]] <- h
+  }
+  
+  hypTBL <- do.call(rbind, hypLST)
+  return(hypTBL)
+}
+
+#x <- makeHypothesis(fits = res$fits, 
+ #                   estimates = res$R2_robust, 
+  #                  dimension = "phylogeny", 
+   #                 Q = "q2", 
+    #                level = "all")
