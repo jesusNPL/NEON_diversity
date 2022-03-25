@@ -884,3 +884,337 @@ write.csv(h_table_trait_dis,
 write.csv(h_table_trait_met, 
           file = "output/hypotesis_trait_habitat_met.csv")
 
+############### ------------ GET FIXEF PHYLOGENY  ------------- ###############
+source("R/NEON_diversity/R/Functions/getBEffects.R")
+
+dirPhy <- "Results/Regressions/phylo-spec/SAM/Scale/"
+
+fits_phy <- list.files(dirPhy)
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+fixef_lst <- list()
+
+for(i in 1:length(fits_phy)) {
+  
+  fit_phy <- fits_phy[i]
+  
+  load(paste0(dirPhy, fit_phy))
+  
+  fixef <- getFixef(fits = res$fits, robust = TRUE, 
+                    estimates = res$R2_robust,
+                    dimension = "phylogeny", Q = Qs[i], 
+                    level = "all") 
+  fixef_lst[[i]] <- fixef
+  
+}
+
+
+fixef_table_phy <- do.call(rbind, fixef_lst)
+
+##### By habitat #####
+list.files("Results/Regressions/phylo-spec/Habitat/Scale/")
+
+dirPhy_habitat <- "Results/Regressions/phylo-spec/Habitat/Scale/"
+
+prefix <- "reg_Phylo_Spec_DIS_"
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+habitat <- c("deciduousForest", "evergreenForest", "grasslandHerbaceous", 
+             "mixedForest", "shrubScrub")
+
+fixef_q0_lst <- list()
+fixef_q1_lst <- list()
+fixef_q2_lst <- list()
+fixef_q3_lst <- list()
+
+for(i in 1:length(habitat)) { 
+  
+  print(habitat[i])
+  
+  # q0
+  load(paste0(dirPhy_habitat, prefix, Qs[1], "_", habitat[i], ".RData")) 
+  
+  fixefq0 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust,
+                      dimension = "phylogeny", Q = Qs[1], 
+                         level = habitat[i]) 
+  fixef_q0_lst[[i]] <- fixefq0 
+  
+  # q1
+  load(paste0(dirPhy_habitat, prefix, Qs[2], "_", habitat[i], ".RData")) 
+  
+  fixefq1 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust,
+                      dimension = "phylogeny", Q = Qs[2], 
+                         level = habitat[i]) 
+  fixef_q1_lst[[i]] <- fixefq1
+  
+  # q2
+  load(paste0(dirPhy_habitat, prefix, Qs[3], "_", habitat[i], ".RData")) 
+  
+  fixefq2 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust,
+                      dimension = "phylogeny", Q = Qs[3], 
+                         level = habitat[i]) 
+  fixef_q2_lst[[i]] <- fixefq2
+  
+  # q3
+  load(paste0(dirPhy_habitat, prefix, Qs[4], "_", habitat[i], ".RData")) 
+  
+  fixefq3 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust,
+                      dimension = "phylogeny", Q = Qs[4], 
+                         level = habitat[i]) 
+  fixef_q3_lst[[i]] <- fixefq3
+  
+}
+
+fixef_q0_table <- do.call(rbind, fixef_q0_lst)
+fixef_q1_table <- do.call(rbind, fixef_q1_lst)
+fixef_q2_table <- do.call(rbind, fixef_q2_lst)
+fixef_q3_table <- do.call(rbind, fixef_q3_lst)
+
+##### Combine all tables #####
+library(tidyverse)
+
+fixef_table_phylo <- rbind(fixef_table_phy, fixef_q0_table, fixef_q1_table, 
+                        fixef_q2_table, fixef_q3_table)
+
+write.csv(fixef_table_phylo, 
+          file = "Results/Regressions/phylo-spec/Estimations_FIXEF_phylo.csv")
+
+############### ------------ GET FIXEF TRAITS  ------------- ###############
+
+source("R/NEON_diversity/R/Functions/getBEffects.R")
+
+dirTrt <- "Results/Regressions/trait-spec/SAM/Scale/"
+
+fits_trt <- list.files(dirTrt)
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+fixef_lst_dis <- list()
+fixef_lst_met <- list()
+
+for(i in 1:length(Qs)) {
+  # Distance based metrics
+  print(fits_trt[i])
+  
+  fit_trt_dis <- fits_trt[i]
+  
+  load(paste0(dirTrt, fit_trt_dis))
+  
+  fixefdis <- getFixef(fits = res$fits, robust = TRUE, 
+                       estimates = res$R2_robust, 
+                       dimension = "trait", Q = Qs[i], 
+                       level = "all") 
+  fixef_lst_dis[[i]] <- fixefdis
+  
+  # Classic metrics
+  print(fits_trt[i + 4])
+  
+  fit_trt_met <- fits_trt[i + 4]
+  
+  load(paste0(dirTrt, fit_trt_met))
+  
+  fixefmet <- getFixef(fits = res$fits, robust = TRUE, 
+                       estimates = res$R2_robust, 
+                       dimension = "trait", Q = Qs[i], 
+                       level = "all") 
+  fixef_lst_met[[i]] <- fixefmet
+  
+}
+
+fixef_table_trt_dis <- do.call(rbind, fixef_lst_dis)
+fixef_table_trt_met <- do.call(rbind, fixef_lst_met)
+
+##### By habitat #####
+list.files("Results/Regressions/trait-spec/Habitat/DIS/")
+
+dirTrt_habitat_dis <- "Results/Regressions/trait-spec/Habitat/DIS/"
+
+prefixDIS <- "reg_Trait_Spec_DIS_SAM_scaled_"
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+habitat <- c("deciduousForest", "evergreenForest", "grasslandHerbaceous", 
+             "mixedForest", "shrubScrub")
+
+### Distance based metrics
+fixef_q0_lst_dis <- list()
+fixef_q1_lst_dis <- list()
+fixef_q2_lst_dis <- list()
+fixef_q3_lst_dis <- list()
+
+for(i in 1:length(habitat)) { 
+  
+  print(habitat[i])
+  
+  # q0
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[1], "_", habitat[i], ".RData")) 
+  
+  fixefq0 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust, 
+                      dimension = "trait", Q = Qs[1], 
+                         level = habitat[i]) 
+  fixef_q0_lst_dis[[i]] <- fixefq0 
+  
+  # q1
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[2], "_", habitat[i], ".RData")) 
+  
+  fixefq1 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust, 
+                      dimension = "trait", Q = Qs[2], 
+                         level = habitat[i]) 
+  fixef_q1_lst_dis[[i]] <- fixefq1
+  
+  # q2
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[3], "_", habitat[i], ".RData")) 
+  
+  fixefq2 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust, 
+                      dimension = "trait", Q = Qs[3], 
+                         level = habitat[i]) 
+  fixef_q2_lst_dis[[i]] <- fixefq2
+  
+  # q3
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[4], "_", habitat[i], ".RData")) 
+  
+  fixefq3 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust, 
+                      dimension = "trait", Q = Qs[4], 
+                         level = habitat[i]) 
+  fixef_q3_lst_dis[[i]] <- fixefq3
+  
+}
+
+fixef_q0_table_dis <- do.call(rbind, fixef_q0_lst_dis)
+fixef_q1_table_dis <- do.call(rbind, fixef_q1_lst_dis)
+fixef_q2_table_dis <- do.call(rbind, fixef_q2_lst_dis)
+fixef_q3_table_dis <- do.call(rbind, fixef_q3_lst_dis)
+
+#### Classic metrics  
+list.files("Results/Regressions/trait-spec/Habitat/MET/")
+
+dirTrt_habitat_met <- "Results/Regressions/trait-spec/Habitat/MET/"
+
+prefixMET <- "reg_Trait_Spec_MET_SAM_scaled_"
+
+fixef_q0_lst_met <- list()
+fixef_q1_lst_met <- list()
+fixef_q2_lst_met <- list()
+fixef_q3_lst_met <- list()
+
+for(i in 1:length(habitat)) { 
+  
+  print(habitat[i])
+  
+  # q0
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[1], "_", habitat[i], ".RData")) 
+  
+  fixefq0 <- getFixef(fits = res$fits, robust = TRUE, 
+                       estimates = res$R2_robust, 
+                       dimension = "trait", Q = Qs[1], 
+                         level = habitat[i]) 
+  fixef_q0_lst_met[[i]] <- fixefq0 
+  
+  # q1
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[2], "_", habitat[i], ".RData")) 
+  
+  fixefq1 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust, 
+                      dimension = "trait", Q = Qs[2], 
+                         level = habitat[i]) 
+  fixef_q1_lst_met[[i]] <- fixefq1
+  
+  # q2
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[3], "_", habitat[i], ".RData")) 
+  
+  fixefq2 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust, 
+                      dimension = "trait", Q = Qs[3], 
+                         level = habitat[i]) 
+  fixef_q2_lst_met[[i]] <- fixefq2
+  
+  # q3
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[4], "_", habitat[i], ".RData")) 
+  
+  fixefq3 <- getFixef(fits = res$fits, robust = TRUE, 
+                      estimates = res$R2_robust, 
+                      dimension = "trait", Q = Qs[4], 
+                         level = habitat[i]) 
+  fixef_q3_lst_met[[i]] <- fixefq3
+  
+}
+
+fixef_q0_table_met <- do.call(rbind, fixef_q0_lst_met)
+fixef_q1_table_met <- do.call(rbind, fixef_q1_lst_met)
+fixef_q2_table_met <- do.call(rbind, fixef_q2_lst_met)
+fixef_q3_table_met <- do.call(rbind, fixef_q3_lst_met)
+
+##### Combine all tables #####
+library(tidyverse)
+
+fixef_table_trait_dis <- rbind(fixef_table_trt_dis, fixef_q0_table_dis, 
+                            fixef_q1_table_dis, fixef_q2_table_dis, 
+                            fixef_q3_table_dis)
+
+fixef_table_trait_met <- rbind(fixef_table_trt_met, fixef_q0_table_met, 
+                            fixef_q1_table_met, fixef_q2_table_met, 
+                            fixef_q3_table_met)
+
+write.csv(fixef_table_trait_dis, 
+          file = "Results/Regressions/trait-spec/Estimations_FIXEF_trait_dis.csv")
+
+write.csv(fixef_table_trait_met, 
+          file = "Results/Regressions/trait-spec/Estimations_FIXEF_trait_met.csv")
+
+############### ------------ GET FIXEF TAXONOMY ------------- ###############
+
+source("R/NEON_diversity/R/Functions/getBEffects.R")
+
+dirTax <- "Results/Regressions/taxo-spec/"
+
+fits_tax <- list.files(dirTax)
+
+load(paste0(dirTax, "reg_Taxo_Spec_Alpha_THRESH.RData"))
+  
+fixeftax <- getFixef(fits = res$fits, robust = TRUE, 
+                     estimates = res$R2_robust, 
+                     dimension = "taxonomy", Q = "Q13", 
+                     level = "all") 
+
+##### By habitat #####
+
+dirTaxH <- "Results/Regressions/taxo-spec/Habitat/"
+
+fits_tax_habitat <- list.files(dirTaxH)
+
+habitat <- c("deciduousForest", "evergreenForest", "grasslandHerbaceous", 
+             "mixedForest", "shrubScrub")
+
+fixef_lst_tax <- list()
+
+for(i in 1:length(habitat)) {
+  
+  fit <- fits_tax_habitat[6:10][i] 
+  
+  load(paste0(dirTaxH, fit))
+  
+  fixeftaxH <- getFixef(fits = res$fits, robust = TRUE, 
+                        estimates = res$R2_robust, 
+                        dimension = "taxonomy", Q = "Q13", 
+                        level = habitat[i]) 
+  
+  fixef_lst_tax[[i]] <- fixeftaxH 
+  
+}
+
+fixef_table_habitat <- do.call(rbind, fixef_lst_tax)
+
+fixef_table_taxonomy <- rbind(fixeftax, fixef_table_habitat)
+
+write.csv(fixef_table_taxonomy, 
+          file = "Results/Regressions/taxo-spec/Estimations_FIXEF_taxonomy.csv")

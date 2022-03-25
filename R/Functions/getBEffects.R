@@ -32,7 +32,7 @@ getFixef <- function(fits,
     fix$Q <- Q
     fixLst[[i]] <- fix
   }
-  fixdt <- do_call(rbind, fixLst)
+  fixdt <- do.call(rbind, fixLst)
   rownames(fixdt) <- NULL
   return(fixdt)
 }
