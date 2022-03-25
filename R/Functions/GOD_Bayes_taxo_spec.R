@@ -1,4 +1,4 @@
-god_BayReg_alpha_taxo <- function(resMetrics, nMetrics, pathSave,
+god_BayReg_alpha_taxo <- function(resMetrics, nMetrics, pathSave, scale = TRUE, 
                                   nChains, nIters, nCores, engine) {
   library(brms)
   library(cmdstanr)
@@ -21,15 +21,29 @@ god_BayReg_alpha_taxo <- function(resMetrics, nMetrics, pathSave,
     data <- resMetrics[, c(1:2, i + 2, i + 15)]
     headers <- names(data)
 
-    formulas <- as.formula(paste(
-      headers[3],
-      " ~ ",
-      paste(headers[4],
-        paste0("+ (1|Site)"),
-        collapse = "+"
-      )
-    ))
+    #formulas <- as.formula(paste(
+     # headers[3],
+      #" ~ ",
+      #paste(headers[4],
+       # paste0("+ (1|Site)"),
+      #  collapse = "+"
+      #)
+    #))
 
+    if (scale == FALSE) {
+      formulas <- as.formula(paste(
+        headers[3], " ~ ",
+        paste(headers[4], paste0("+ (1|Site)"),
+              collapse = "+"
+        )
+      ))
+    } else {
+      formulas <- as.formula(paste(headers[3],  " ~ ",
+                                   paste0("scale(", headers[4], ")"),
+                                   paste0("+ (1|Site)"),
+                                   collapse = "+"
+      ))
+    }
     ### Run
     fit <- brms::brm(
       formula = formulas,
@@ -69,7 +83,7 @@ god_BayReg_alpha_taxo <- function(resMetrics, nMetrics, pathSave,
 ############ ---------------- Alpha-Beta-Gamma ---------------- ##############
 #q0
 god_BayReg_ABG_taxo <- function(resMetrics, nMetrics, pathSave,
-                                diversityLevel, qlevel,
+                                diversityLevel, qlevel, scale = TRUE, 
                                 nChains, nIters, nCores, engine) {
   library(brms)
   library(cmdstanr)
@@ -98,15 +112,26 @@ god_BayReg_ABG_taxo <- function(resMetrics, nMetrics, pathSave,
     data <- resMetrics[, c(1:3, i + 3, i + 5)]
     headers <- names(data)
 
-    formulas <- as.formula(paste(
-      headers[4],
-      " ~ ",
-      paste(headers[5]),
+    if (scale == FALSE) { 
+      formulas <- as.formula(paste(
+        headers[4],
+        " ~ ",
+        paste(headers[5]),
         #paste0("+ (1|Site)"),
         collapse = "+"
       )
-    )#)
-
+      )#)
+    } else { 
+      formulas <- as.formula(paste(
+        headers[4],
+        " ~ ",
+        paste0("scale(", headers[5], ")"),
+        #paste0("+ (1|Site)"),
+        collapse = "+"
+      )
+      )#)
+      }
+    
     ### Run
     fit <- brms::brm(
       formula = formulas,

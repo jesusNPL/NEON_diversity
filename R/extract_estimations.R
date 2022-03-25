@@ -409,7 +409,7 @@ for(i in 1:length(Qs)) {
   
   betas_dis <- getFixefPosterior(fits = res$fits, 
                              estimates = res$R2_robust, 
-                             nDraws = 1000, 
+                             nDraws = 5000, 
                              dimension = "trait", 
                              Q = Qs[i], 
                              level = "all") 
@@ -424,7 +424,7 @@ for(i in 1:length(Qs)) {
   
   betas_met <- getFixefPosterior(fits = res$fits, 
                                  estimates = res$R2_robust, 
-                                 nDraws = 1000, 
+                                 nDraws = 5000, 
                                  dimension = "trait", 
                                  Q = Qs[i], 
                                  level = "all") 
@@ -461,7 +461,7 @@ for(i in 1:length(habitat)) {
   
   betaq0 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait", 
                               Q = Qs[1], 
                               level = habitat[i]) 
@@ -472,7 +472,7 @@ for(i in 1:length(habitat)) {
   
   betaq1 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait",
                               Q = Qs[2], 
                               level = habitat[i]) 
@@ -483,7 +483,7 @@ for(i in 1:length(habitat)) {
   
   betaq2 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait",
                               Q = Qs[3], 
                               level = habitat[i]) 
@@ -494,7 +494,7 @@ for(i in 1:length(habitat)) {
   
   betaq3 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait",
                               Q = Qs[4], 
                               level = habitat[i]) 
@@ -541,7 +541,7 @@ for(i in 1:length(habitat)) {
   
   betaq0 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait", 
                               Q = Qs[1], 
                               level = habitat[i]) 
@@ -552,7 +552,7 @@ for(i in 1:length(habitat)) {
   
   betaq1 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait",
                               Q = Qs[2], 
                               level = habitat[i]) 
@@ -563,7 +563,7 @@ for(i in 1:length(habitat)) {
   
   betaq2 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait",
                               Q = Qs[3], 
                               level = habitat[i]) 
@@ -574,7 +574,7 @@ for(i in 1:length(habitat)) {
   
   betaq3 <- getFixefPosterior(fits = res$fits, 
                               estimates = res$R2_robust, 
-                              nDraws = 1000, 
+                              nDraws = 5000, 
                               dimension = "trait",
                               Q = Qs[4], 
                               level = habitat[i]) 
@@ -593,3 +593,294 @@ beta_table_trait_met_ALL <- rbind(beta_table_trait_met, beta_q0_table_met,
 
 write.csv(beta_table_trait_met_ALL, 
           file = "Results/Regressions/trait-spec/Estimations_BETA_trait_met.csv")
+
+############ ------------ MAKE HYPOTHESIS --------------- ##############
+
+##### Phylogenetic dimension #####
+source("R/NEON_diversity/R/Functions/getBEffects.R")
+
+dirPhy <- "Results/Regressions/phylo-spec/SAM/Scale/"
+
+fits_phy <- list.files(dirPhy)
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+h_lst <- list()
+
+for(i in 1:length(fits_phy)) {
+  
+  fit_phy <- fits_phy[i]
+  
+  load(paste0(dirPhy, fit_phy))
+  
+  h <- makeHypothesis(fits = res$fits, 
+                      estimates = res$R2_robust, 
+                      dimension = "phylogeny", 
+                      Q = Qs[i], 
+                      level = "all") 
+  h_lst[[i]] <- h
+  
+}
+
+h_table_phy <- do.call(rbind, h_lst)
+
+write.csv(h_table_phy, file = "output/hypotesis_phylo_allSites.csv")
+
+##### By habitat #####
+list.files("Results/Regressions/phylo-spec/Habitat/Scale/")
+
+dirPhy_habitat <- "Results/Regressions/phylo-spec/Habitat/Scale/"
+
+prefix <- "reg_Phylo_Spec_DIS_"
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+habitat <- c("deciduousForest", "evergreenForest", "grasslandHerbaceous", 
+             "mixedForest", "shrubScrub")
+
+h_q0_lst <- list()
+h_q1_lst <- list()
+h_q2_lst <- list()
+h_q3_lst <- list()
+
+for(i in 1:length(habitat)) { 
+  
+  print(habitat[i])
+  
+  # q0
+  load(paste0(dirPhy_habitat, prefix, Qs[1], "_", habitat[i], ".RData")) 
+  
+  hq0 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust, 
+                        dimension = "phylogeny", Q = Qs[1], 
+                        level = habitat[i]) 
+  h_q0_lst[[i]] <- hq0 
+  
+  # q1
+  load(paste0(dirPhy_habitat, prefix, Qs[2], "_", habitat[i], ".RData")) 
+  
+  hq1 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust,
+                        dimension = "phylogeny", Q = Qs[2], 
+                        level = habitat[i]) 
+  h_q1_lst[[i]] <- hq1
+  
+  # q2
+  load(paste0(dirPhy_habitat, prefix, Qs[3], "_", habitat[i], ".RData")) 
+  
+  hq2 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust,
+                        dimension = "phylogeny", Q = Qs[3], 
+                        level = habitat[i]) 
+  h_q2_lst[[i]] <- hq2
+  
+  # q3
+  load(paste0(dirPhy_habitat, prefix, Qs[4], "_", habitat[i], ".RData")) 
+  
+  hq3 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust,
+                        dimension = "phylogeny", Q = Qs[4], 
+                        level = habitat[i]) 
+  h_q3_lst[[i]] <- hq3
+  
+}
+
+h_q0_table <- do.call(rbind, h_q0_lst)
+h_q1_table <- do.call(rbind, h_q1_lst)
+h_q2_table <- do.call(rbind, h_q2_lst)
+h_q3_table <- do.call(rbind, h_q3_lst)
+
+##### Combine all tables #####
+h_table_phylo_habitat <- rbind(h_q0_table, h_q1_table, 
+                        h_q2_table, h_q3_table)
+
+write.csv(h_table_phylo_habitat, 
+          file = "output/hypotesis_phylo_habitat.csv")
+
+##### Trait dimension #####
+
+source("R/NEON_diversity/R/Functions/getBEffects.R")
+
+dirTrt <- "Results/Regressions/trait-spec/SAM/Scale/"
+
+fits_trt <- list.files(dirTrt)
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+h_lst_dis <- list()
+h_lst_met <- list()
+
+for(i in 1:length(Qs)) {
+  # Distance based metrics
+  print(fits_trt[i])
+  
+  fit_trt_dis <- fits_trt[i]
+  
+  load(paste0(dirTrt, fit_trt_dis))
+  
+  hdis <- makeHypothesis(fits = res$fits, 
+                         estimates = res$R2_robust, 
+                         dimension = "trait", Q = Qs[i], 
+                         level = "all") 
+  h_lst_dis[[i]] <- hdis
+  
+  # Classic metrics
+  print(fits_trt[i + 4])
+  
+  fit_trt_met <- fits_trt[i + 4]
+  
+  load(paste0(dirTrt, fit_trt_met))
+  
+  hmet <- makeHypothesis(fits = res$fits, 
+                         estimates = res$R2_robust, 
+                         dimension = "trait", Q = Qs[i], 
+                         level = "all") 
+  h_lst_met[[i]] <- hmet
+  
+}
+
+h_table_trt_dis <- do.call(rbind, h_lst_dis)
+h_table_trt_met <- do.call(rbind, h_lst_met)
+
+h_table_trait <- rbind(h_table_trt_dis, h_table_trt_met)
+
+write.csv(h_table_trait, file = "output/hypotesis_trait_allSites.csv")
+
+##### By habitat #####
+list.files("Results/Regressions/trait-spec/Habitat/DIS/")
+
+dirTrt_habitat_dis <- "Results/Regressions/trait-spec/Habitat/DIS/"
+
+prefixDIS <- "reg_Trait_Spec_DIS_SAM_scaled_"
+
+Qs <- c("q0", "q1", "q2", "q3")
+
+habitat <- c("deciduousForest", "evergreenForest", "grasslandHerbaceous", 
+             "mixedForest", "shrubScrub")
+
+### Distance based metrics
+h_q0_lst_dis <- list()
+h_q1_lst_dis <- list()
+h_q2_lst_dis <- list()
+h_q3_lst_dis <- list()
+
+for(i in 1:length(habitat)) { 
+  
+  print(habitat[i])
+  
+  # q0
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[1], "_", habitat[i], ".RData")) 
+  
+  hq0 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust, 
+                         dimension = "trait", Q = Qs[1], 
+                         level = habitat[i]) 
+  h_q0_lst_dis[[i]] <- hq0 
+  
+  # q1
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[2], "_", habitat[i], ".RData")) 
+  
+  hq1 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust, 
+                        dimension = "trait", Q = Qs[2], 
+                        level = habitat[i]) 
+  h_q1_lst_dis[[i]] <- hq1
+  
+  # q2
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[3], "_", habitat[i], ".RData")) 
+  
+  hq2 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust, 
+                        dimension = "trait", Q = Qs[3], 
+                        level = habitat[i]) 
+  h_q2_lst_dis[[i]] <- hq2
+  
+  # q3
+  load(paste0(dirTrt_habitat_dis, prefixDIS, Qs[4], "_", habitat[i], ".RData")) 
+  
+  hq3 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust, 
+                        dimension = "trait", Q = Qs[4], 
+                        level = habitat[i]) 
+  h_q3_lst_dis[[i]] <- hq3
+  
+}
+
+h_q0_table_dis <- do.call(rbind, h_q0_lst_dis)
+h_q1_table_dis <- do.call(rbind, h_q1_lst_dis)
+h_q2_table_dis <- do.call(rbind, h_q2_lst_dis)
+h_q3_table_dis <- do.call(rbind, h_q3_lst_dis)
+
+#### Classic metrics  
+list.files("Results/Regressions/trait-spec/Habitat/MET/")
+
+dirTrt_habitat_met <- "Results/Regressions/trait-spec/Habitat/MET/"
+
+prefixMET <- "reg_Trait_Spec_MET_SAM_scaled_"
+
+h_q0_lst_met <- list()
+h_q1_lst_met <- list()
+h_q2_lst_met <- list()
+h_q3_lst_met <- list()
+
+for(i in 1:length(habitat)) { 
+  
+  print(habitat[i])
+  
+  # q0
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[1], "_", habitat[i], ".RData")) 
+  
+  hq0 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust, 
+                        dimension = "trait", Q = Qs[1], 
+                        level = habitat[i]) 
+  h_q0_lst_met[[i]] <- hq0 
+  
+  # q1
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[2], "_", habitat[i], ".RData")) 
+  
+  hq1 <- makeHypothesis(fits = res$fits, 
+                         estimates = res$R2_robust, 
+                         dimension = "trait", Q = Qs[2], 
+                         level = habitat[i]) 
+  h_q1_lst_met[[i]] <- hq1
+  
+  # q2
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[3], "_", habitat[i], ".RData")) 
+  
+  hq2 <- makeHypothesis(fits = res$fits, 
+                        estimates = res$R2_robust, 
+                        dimension = "trait", Q = Qs[3], 
+                        level = habitat[i]) 
+  h_q2_lst_met[[i]] <- hq2
+  
+  # q3
+  load(paste0(dirTrt_habitat_met, prefixMET, Qs[4], "_", habitat[i], ".RData")) 
+  
+  hq3 <- makeHypothesis(fits = res$fits, 
+                         estimates = res$R2_robust, 
+                         dimension = "trait", Q = Qs[4], 
+                         level = habitat[i]) 
+  h_q3_lst_met[[i]] <- hq3
+  
+}
+
+h_q0_table_met <- do.call(rbind, h_q0_lst_met)
+h_q1_table_met <- do.call(rbind, h_q1_lst_met)
+h_q2_table_met <- do.call(rbind, h_q2_lst_met)
+h_q3_table_met <- do.call(rbind, h_q3_lst_met)
+
+##### Combine all tables #####
+
+h_table_trait_dis <- rbind(h_q0_table_dis, h_q1_table_dis, 
+                           h_q2_table_dis, h_q3_table_dis)
+
+h_table_trait_met <- rbind(h_q0_table_met, h_q1_table_met, 
+                           h_q2_table_met, h_q3_table_met)
+
+write.csv(h_table_trait_dis, 
+          file = "output/hypotesis_trait_habitat_dis.csv")
+
+write.csv(h_table_trait_met, 
+          file = "output/hypotesis_trait_habitat_met.csv")
+
