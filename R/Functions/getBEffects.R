@@ -146,3 +146,48 @@ makeHypothesis <- function(fits,
 #                  dimension = "phylogeny",
 #                 Q = "q2",
 #                level = "all")
+
+##### Function to make tables from fixed effects site level #####
+
+makeTableSite <- function(resSite, Q, dimension) {
+  params <- c("Intercept", "Slope")
+
+  r2 <- list()
+  slopes <- list()
+  hypothesis <- list()
+
+  for (j in 1:length(resSite)) {
+    esti <- resSite[[j]]$R2_robust
+    esti$Q <- Q
+    esti$dimension <- dimension
+    r2[[j]] <- esti
+
+    betas <- resSite[[j]]$fixef_robust
+    betas$params <- rep(params, ncol(resSite[[j]]$fixef_robust) / 2)
+    betas$Q <- Q
+    betas$dimension <- dimension
+    slopes[[j]] <- betas
+
+    hypothesis[[j]] <- resSite[[j]]$hypTBL
+  }
+
+  r2 <- do.call(rbind, r2)
+  rownames(r2) <- NULL
+  r2 <- r2 %>%
+    select(Site, Q, Phylo, Spec, everything())
+
+  slopes <- do.call(rbind, slopes)
+  rownames(slopes) <- NULL
+  slopes <- slopes %>%
+    select(Site, Q, formula, params, everything())
+
+  hypothesis <- do.call(rbind, hypothesis)
+  rownames(hypothesis) <- NULL
+  hypothesis <- hypothesis %>%
+    select(Site, Q, metric, everything())
+
+  res <- list(estimate = r2, betas = slopes, hypothesis = hypothesis)
+  return(res)
+}
+
+# x <- makeTableSite(resSite = res_phylo_q0, Q = "q0", dimension = "phylogeny")

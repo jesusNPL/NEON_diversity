@@ -274,6 +274,56 @@ write.csv(r2_table_trait_dis,
 write.csv(r2_table_trait_met, 
           file = "Results/Regressions/trait-spec/Estimations_R2_trait_met.csv")
 
+##### ------------------ Taxonomic dimension R2 -------------------- #####
+##### Extract data for plotting #####
+
+source("R/NEON_diversity/R/Functions/getBEffects.R")
+
+dirTax <- "Results/Regressions/taxo-spec/"
+
+fits_tax <- list.files(dirTax)
+
+
+load(paste0(dirPhy, fits_tax[22]))
+  
+r2_tax <- getR2Estimates(fits = res, robust = TRUE, 
+                       dimension = "taxonomy", Q = "q13", 
+                       level = "all") 
+  
+##### By habitat #####
+list.files("Results/Regressions/taxo-spec/Habitat/")
+
+dirTax_habitat <- "Results/Regressions/taxo-spec/Habitat/"
+
+prefix <- "reg_Taxo_Spec_Alpha_THRESH_"
+
+habitat <- c("deciduousForest", "evergreenForest", "grasslandHerbaceous", 
+             "mixedForest", "shrubScrub")
+
+r2_tax_lst <- list()
+
+for(i in 1:length(habitat)) { 
+  
+  print(habitat[i])
+  
+  # q0
+  load(paste0(dirTax_habitat, prefix, habitat[i], ".RData")) 
+  
+  r2tax <- getR2Estimates(fits = res, robust = TRUE, 
+                         dimension = "taxonomy", Q = "q13", 
+                         level = habitat[i]) 
+  r2_tax_lst[[i]] <- r2tax 
+  
+}
+
+r2_tax_table <- do.call(rbind, r2_tax_lst)
+
+##### Combine all tables #####
+r2_table_taxo <- rbind(r2_tax, r2_tax_table)
+
+write.csv(r2_table_taxo, 
+          file = "Results/Regressions/taxo-spec/Estimations_R2_taxo.csv")
+
 ##### --------------- Extract Betas PHYLOGENY ------------------ #####
 
 source("R/NEON_diversity/R/Functions/getBEffects.R")

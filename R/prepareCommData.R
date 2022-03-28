@@ -21,7 +21,14 @@ comNEON <- comNEON %>%
         select(domainID, siteID, plotID, plotID_SPEC, pnum, SciNames, percentCover)
 
 sites <- unique(comNEON$siteID)
-sitesAnna <- unique(x$Site)
+
+x <- data.frame(list.files("DATA/Spectra/"))
+names(x) <- "header"
+xx <- x %>% 
+        separate(header, sep = "_", 
+                 into = c("Site", "spec", "grd"))
+
+sitesAnna <- unique(xx$Site)
 
 sites <- sort(sites[sites %in% sitesAnna])
 
@@ -60,6 +67,7 @@ saveRDS(commNEON, file = "DATA/Plants_NEON/veg_cover_compiled_clean.rds")
 
 ##### Match data by community #####
 
+load("https://raw.githubusercontent.com/jesusNPL/NEON_diversity/main/R/Functions/aux_matchData.R")
 sitesNEON <- sort(unique(comNEON$siteID))
 
 ### Match community and phylogenetic data 
