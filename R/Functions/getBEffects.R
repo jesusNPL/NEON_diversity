@@ -163,7 +163,7 @@ makeTableSite <- function(resSite, Q, dimension) {
     r2[[j]] <- esti
 
     betas <- resSite[[j]]$fixef_robust
-    betas$params <- rep(params, ncol(resSite[[j]]$fixef_robust) / 2)
+    betas$params <- rep(params, nrow(resSite[[j]]$fixef_robust) / 2)
     betas$Q <- Q
     betas$dimension <- dimension
     slopes[[j]] <- betas
@@ -183,7 +183,8 @@ makeTableSite <- function(resSite, Q, dimension) {
 
   hypothesis <- do.call(rbind, hypothesis)
   rownames(hypothesis) <- NULL
-  hypothesis <- hypothesis %>%
+  hypothesis <- hypothesis %>% 
+    mutate(Q = Q) %>% 
     select(Site, Q, metric, everything())
 
   res <- list(estimate = r2, betas = slopes, hypothesis = hypothesis)

@@ -148,6 +148,7 @@ load("Results/RegDATA/SAM/trait_spec_MET_SAM_NEON.RData")
 
 ### Inits
 sites <- unique(trait_spec_NEON_table_MET_SAM_q1$Site) 
+
 nSites <- length(sites)
 
 res_trait_met <- list()
@@ -172,13 +173,17 @@ save(res_trait_met,
      file = "Results/Regressions/trait-spec/site/output_trait_met_site.RData")
 
 rm(list = ls())
+
 gc()
 
 ##### Taxonomic dimension #####
+source("R/NEON_diversity/R/Functions/GOD_Bayes_local.R")
+
 load("Results/RegDATA/taxo_spec_ALPHA_NEON.RData")
 
 ### Inits
 sites <- unique(taxo_spec_thresh_NEON_table$Site) 
+
 nSites <- length(sites)
 
 res_taxo <- list()
@@ -198,8 +203,6 @@ for(i in 1:nSites) {
   res_taxo[[i]] <- reg_tx
   
 }
-
-dir.create("Results/Regressions/taxo-spec/site")
 
 save(res_taxo, 
      file = "Results/Regressions/taxo-spec/site/output_taxo_site.RData")

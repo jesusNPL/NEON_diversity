@@ -69,7 +69,9 @@ taxo_spec_thresh_NEON_table_habitat <- left_join(taxo_spec_thresh_NEON_table,
                                                  NEON_hab, 
                                                  by = c("Site" = "site", "plotID"))
 
-##### Run Bayesian regressions for Alpha taxonomic metrics #####
+##### Run Bayesian regressions for Alpha taxonomic metrics ##### 
+source("R/NEON_diversity/R/Functions/GOD_Bayes_taxo_spec.R")
+
 ### Inits
 QS <- c("q0", "q1", "q2", "q3")
 
