@@ -1,7 +1,7 @@
 ##### Phylogenetic dimension #####
 library(tidyverse)
 
-source("R/NEON_diversity/R/Functions/GOD_Bayes_local.R")
+source("R/NEON_diversity/R/Functions/GOD_Bayes_local_tensor.R")
 
 load("Results/RegDATA/SAM/phylo_spec_DIS_SAM_NEON.RData")
 
@@ -69,13 +69,13 @@ for(i in 1:nSites) {
 dir.create("Results/Regressions/phylo-spec/site")
 
 save(res_phylo_q0, res_phylo_q1, res_phylo_q2, 
-     file = "Results/Regressions/phylo-spec/site/output_phylo_site_alpha_01.RData")
+     file = "Results/Regressions/phylo-spec/site/output_phylo_site_alpha_01_tensor.RData")
 
 rm(list = ls())
 
 ##### Trait dimension #####
 library(tidyverse)
-source("R/NEON_diversity/R/Functions/GOD_Bayes_local.R")
+source("R/NEON_diversity/R/Functions/GOD_Bayes_local_tensor.R")
 
 load("Results/RegDATA/SAM/trait_spec_DIS_SAM_NEON.RData")
 
@@ -138,12 +138,12 @@ for(i in 1:nSites) {
 dir.create("Results/Regressions/trait-spec/site")
 
 save(res_trait_dis_q0, res_trait_dis_q1, res_trait_dis_q2, 
-     file = "Results/Regressions/trait-spec/site/output_trait_dis_site_alpha_01.RData")
+     file = "Results/Regressions/trait-spec/site/output_trait_dis_site_alpha_01_tensor.RData")
 
 rm(list = ls())
 
 ##### Trait dimension #####
-source("R/NEON_diversity/R/Functions/GOD_Bayes_local.R")
+source("R/NEON_diversity/R/Functions/GOD_Bayes_local_tensor.R")
 
 load("Results/RegDATA/SAM/trait_spec_MET_SAM_NEON.RData")
 
@@ -171,14 +171,14 @@ for(i in 1:nSites) {
 }
 
 save(res_trait_met, 
-     file = "Results/Regressions/trait-spec/site/output_trait_met_site_alpha_01.RData")
+     file = "Results/Regressions/trait-spec/site/output_trait_met_site_alpha_01_tensor.RData")
 
 rm(list = ls())
 
 gc()
 
 ##### Taxonomic dimension #####
-source("R/NEON_diversity/R/Functions/GOD_Bayes_local.R")
+source("R/NEON_diversity/R/Functions/GOD_Bayes_local_tensor.R")
 
 load("Results/RegDATA/taxo_spec_ALPHA_NEON.RData")
 
@@ -206,4 +206,4 @@ for(i in 1:nSites) {
 }
 
 save(res_taxo, 
-     file = "Results/Regressions/taxo-spec/site/output_taxo_site_alpha_01.RData")
+     file = "Results/Regressions/taxo-spec/site/output_taxo_site_alpha_01_tensor.RData")

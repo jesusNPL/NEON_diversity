@@ -20,3 +20,18 @@ extractSamples <- function(model, parameters = "^b", nDraws = 100) {
   return(results)
   
 }
+
+extractSamples2 <- function(model, parameters = "^b", nDraws = 100) { 
+  
+  posterior <- as.data.frame(model, pars = parameters)
+
+  post_means <- colMeans(posterior)
+  # take a sample of 20 posterior draws
+  keep <- sample(nrow(posterior), nDraws)
+  samp_draws <- posterior[keep, ] 
+  
+  results <- list(posterios = posterior, posterior_means = post_means, 
+                  keep = keep, draws = samp_draws)
+  return(results)
+  
+}

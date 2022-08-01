@@ -28,7 +28,7 @@ god_BayReg_local_phylo <- function(resMetrics, Q, nMetrics, scale = FALSE,
     if (scale == FALSE) {
       formulas <- as.formula(paste(
         headers[3], " ~ ",
-        headers[4]
+        paste0("t2(", headers[4], ")")
       ))
     } else {
       formulas <- as.formula(paste(
@@ -129,7 +129,10 @@ god_BayReg_trait_local_dis <- function(resMetrics, Q, nMetrics,
     headers <- names(data)
 
     if (scale == FALSE) {
-      formulas <- as.formula(paste(headers[3], " ~ ", headers[4]))
+      formulas <- as.formula(paste(
+        headers[3], " ~ ",
+        paste0("t2(", headers[4], ")")
+      ))
     } else {
       formulas <- as.formula(paste(
         headers[3], " ~ ",
@@ -229,7 +232,10 @@ god_BayReg_trait_local_met <- function(resMetrics, Q, nMetrics = 5,
     headers <- names(data)
 
     if (scale == FALSE) {
-      formulas <- as.formula(paste(headers[3], " ~ ", headers[4]))
+      formulas <- as.formula(paste(
+        headers[3], " ~ ",
+        paste0("t2(", headers[4], ")")
+      ))
     } else {
       formulas <- as.formula(paste(
         headers[3], " ~ ",
@@ -329,7 +335,10 @@ god_BayReg_alpha_local_taxo <- function(resMetrics, nMetrics, scale = FALSE,
     headers <- names(data)
 
     if (scale == FALSE) {
-      formulas <- as.formula(paste(headers[3], " ~ ", headers[4]))
+      formulas <- as.formula(paste(
+        headers[3], " ~ ",
+        paste0("t2(", headers[4], ")")
+      ))
     } else {
       formulas <- as.formula(paste(
         headers[3], " ~ ",

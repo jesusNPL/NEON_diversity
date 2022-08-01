@@ -28,7 +28,7 @@ for(i in 1:nSites) {
                                        Q = QS[1], nMetrics = 7, site = sites[i], 
                                        scale = TRUE, dimension = "phylogeny", 
                                        nChains = 4, nIters = 2000, nCores = 24, 
-                                       engine = "cmdstanr", alpha = 0.1,
+                                       engine = "cmdstanr", alpha = 0.05,
                                        control = list(adapt_delta = 0.99) 
                                    ) 
   res_phylo_q0[[i]] <- reg_q0
@@ -43,7 +43,7 @@ for(i in 1:nSites) {
                                        Q = QS[2], nMetrics = 7, site = sites[i], 
                                        scale = TRUE, dimension = "phylogeny", 
                                        nChains = 4, nIters = 2000, nCores = 24, 
-                                       engine = "cmdstanr", alpha = 0.1,
+                                       engine = "cmdstanr", alpha = 0.05,
                                        control = list(adapt_delta = 0.99) 
                                    ) 
   res_phylo_q1[[i]] <- reg_q1
@@ -58,7 +58,7 @@ for(i in 1:nSites) {
                                        Q = QS[3], nMetrics = 7, site = sites[i], 
                                        scale = TRUE, dimension = "phylogeny", 
                                        nChains = 4, nIters = 2000, nCores = 24, 
-                                       engine = "cmdstanr", alpha = 0.1,
+                                       engine = "cmdstanr", alpha = 0.05,
                                        control = list(adapt_delta = 0.99) 
                                    ) 
   res_phylo_q2[[i]] <- reg_q2
@@ -69,7 +69,7 @@ for(i in 1:nSites) {
 dir.create("Results/Regressions/phylo-spec/site")
 
 save(res_phylo_q0, res_phylo_q1, res_phylo_q2, 
-     file = "Results/Regressions/phylo-spec/site/output_phylo_site_alpha_01.RData")
+     file = "Results/Regressions/phylo-spec/site/output_phylo_site_alpha_005.RData")
 
 rm(list = ls())
 
@@ -102,7 +102,7 @@ for(i in 1:nSites) {
   reg_dis_q0 <- god_BayReg_trait_local_dis(resMetrics = data_q0, 
                                            Q = QS[1], nMetrics = 6, site = sites[i], 
                                            scale = TRUE, dimension = "trait", 
-                                           nChains = 4, nIters = 2000, alpha = 0.1, 
+                                           nChains = 4, nIters = 2000, alpha = 0.05, 
                                            nCores = 24, engine = "cmdstanr") 
   res_trait_dis_q0[[i]] <- reg_dis_q0 
   
@@ -115,7 +115,7 @@ for(i in 1:nSites) {
   reg_dis_q1 <- god_BayReg_trait_local_dis(resMetrics = data_q1, 
                                            Q = QS[2], nMetrics = 6, site = sites[i], 
                                            scale = TRUE, dimension = "trait", 
-                                           nChains = 4, nIters = 2000, alpha = 0.1, 
+                                           nChains = 4, nIters = 2000, alpha = 0.05, 
                                            nCores = 24, engine = "cmdstanr") 
   res_trait_dis_q1[[i]] <- reg_dis_q1 
   
@@ -128,7 +128,7 @@ for(i in 1:nSites) {
   reg_dis_q2 <- god_BayReg_trait_local_dis(resMetrics = data_q2, 
                                            Q = QS[3], nMetrics = 6, site = sites[i], 
                                            scale = TRUE, dimension = "trait", 
-                                           nChains = 4, nIters = 2000, alpha = 0.1, 
+                                           nChains = 4, nIters = 2000, alpha = 0.05, 
                                            nCores = 24, engine = "cmdstanr") 
   res_trait_dis_q2[[i]] <- reg_dis_q2 
   
@@ -138,7 +138,7 @@ for(i in 1:nSites) {
 dir.create("Results/Regressions/trait-spec/site")
 
 save(res_trait_dis_q0, res_trait_dis_q1, res_trait_dis_q2, 
-     file = "Results/Regressions/trait-spec/site/output_trait_dis_site_alpha_01.RData")
+     file = "Results/Regressions/trait-spec/site/output_trait_dis_site_alpha_005.RData")
 
 rm(list = ls())
 
@@ -164,14 +164,14 @@ for(i in 1:nSites) {
   reg_met <- god_BayReg_trait_local_met(resMetrics = data_met, 
                                        Q = "q13", nMetrics = 5, site = sites[i], 
                                        scale = TRUE, dimension = "trait", 
-                                       nChains = 4, nIters = 2000, alpha = 0.1, 
+                                       nChains = 4, nIters = 2000, alpha = 0.05, 
                                        nCores = 24, engine = "cmdstanr") 
   res_trait_met[[i]] <- reg_met
   
 }
 
 save(res_trait_met, 
-     file = "Results/Regressions/trait-spec/site/output_trait_met_site_alpha_01.RData")
+     file = "Results/Regressions/trait-spec/site/output_trait_met_site_alpha_005.RData")
 
 rm(list = ls())
 
@@ -199,11 +199,11 @@ for(i in 1:nSites) {
   reg_tx <- god_BayReg_alpha_local_taxo(resMetrics = data_taxo, 
                                         nMetrics = 13, scale = FALSE, 
                                         site = sites[i], dimension = "taxonomy", 
-                                        nChains = 4, nIters = 2000, alpha = 0.1, 
+                                        nChains = 4, nIters = 2000, alpha = 0.05, 
                                         nCores = 24, engine = "cmdstanr") 
   res_taxo[[i]] <- reg_tx
   
 }
 
 save(res_taxo, 
-     file = "Results/Regressions/taxo-spec/site/output_taxo_site_alpha_01.RData")
+     file = "Results/Regressions/taxo-spec/site/output_taxo_site_alpha_005.RData")

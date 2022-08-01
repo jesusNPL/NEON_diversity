@@ -1268,3 +1268,5 @@ fixef_table_taxonomy <- rbind(fixeftax, fixef_table_habitat)
 
 write.csv(fixef_table_taxonomy, 
           file = "Results/Regressions/taxo-spec/Estimations_FIXEF_taxonomy.csv")
+
+########### --------- Estimations Quantile regression -------- ###########

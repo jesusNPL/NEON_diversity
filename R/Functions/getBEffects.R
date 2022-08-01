@@ -111,7 +111,8 @@ makeHypothesis <- function(fits,
                            estimates,
                            dimension,
                            Q,
-                           level) {
+                           level, 
+                           alpha = 0.05) {
   hypLST <- list()
 
   for (i in 1:length(fits)) {
@@ -123,10 +124,10 @@ makeHypothesis <- function(fits,
 
     if (slope > 0) {
       hyp <- paste0(param, " > 0")
-      h <- hypothesis(fit, hyp, class = "b")$hypothesis
+      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
     } else {
       hyp <- paste0(param, " < 0")
-      h <- hypothesis(fit, hyp, class = "b")$hypothesis
+      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
     }
 
     h$metric <- estimates[i, 5]

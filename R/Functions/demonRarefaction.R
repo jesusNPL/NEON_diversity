@@ -1,3 +1,4 @@
+library(tidyverse)
 library(iNEXT)
 
 ## Function to run Rarefaction/Extrapolation for multiple communities using the
@@ -98,3 +99,45 @@ getSampleCoverage <- function(iNEXT_object, sites) {
 ## Example
 #sampCover_NEON <- getSampleCoverage(iNEXT_object = sampleCompletenessNEON_q0$objects, 
  #                                   sites = sites)
+
+##### Rarefaction using vegan #####
+demonRarefy <- function(samples) {
+  
+  sites <- names(samples)
+  nSites <- length(sites)
+  
+  estimators <- list()
+  
+  for(i in 1:nSites) {
+    
+    print(sites[i]) 
+    
+    ## Select sites 
+    tmp <- samples[[i]]
+    tmp <- as.data.frame(tmp)
+    
+    ## Prepare data
+    occ <- data.frame(apply(X = tmp, MARGIN = 2, FUN = as.integer)) 
+    rownames(occ) <- rownames(tmp) 
+    
+    min_sample <- min(rowSums(occ))
+    
+    ## Run Rarefaction
+    out <- rarefy(occ, min_sample)
+    
+    sr_obs <- specnumber(occ)
+    
+    ## Store results
+    dt_res <- data.frame(out, sr_obs)
+    names(dt_res) <- c("SR_rarefy", "SR_observed")
+    
+    dt_res$site <- sites[i]
+    
+    estimators[[i]] <- dt_res
+  } 
+  
+  res <- do.call(rbind, estimators)
+  return(res)
+}
+# Example
+#res <- demonRarefy(samples = coms)

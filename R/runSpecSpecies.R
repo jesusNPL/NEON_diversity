@@ -63,7 +63,7 @@ for(i in 1:nPlots) {
                                    distance = "euclidean", 
                                    Nspp = SR_plots[i], 
                                    metrics = metrics, 
-                                   Ncores = 30)
+                                   Ncores = 4)
   
   print(paste0("Thresholds computed for ", plotNames[i], " ... starting new plot"))
   
