@@ -41,6 +41,41 @@ getFixef <- function(fits,
 #        estimates = res$R2_robust,
 #       dimension = "phylogeny", level = "forest", Q = 0)
 
+##### Function to extract fixed effects and credible intervals #####
+getFixef_simple <- function(fit,
+                     probs = c(0.025, 0.05, 0.11, 0.25, 0.75, 0.89, 0.95, 0.975),
+                     robust = TRUE,
+                     metric,
+                     estimates,
+                     params = c("Intercept", "Slope"),
+                     dimension,
+                     Q,
+                     level) {
+  
+    
+    if (robust == TRUE) {
+      fix <- round(data.frame(brms::fixef(fit,
+                                          robust = TRUE,
+                                          probs = probs
+      )), 3)
+    } else {
+      fix <- round(data.frame(brms::fixef(fit,
+                                          robust = FALSE,
+                                          probs = probs
+      )), 3)
+    }
+    
+    fix$metric <- metric
+    fix$params <- params
+    fix$dimension <- dimension
+    fix$Quantile <- level
+    fix$Q <- Q
+
+  fixdt <- fix
+  rownames(fixdt) <- NULL
+  return(fixdt)
+}
+
 ##### Function to get fixed effects from posterior distribution #####
 getFixefPosterior <- function(fits,
                               estimates,
@@ -193,3 +228,42 @@ makeTableSite <- function(resSite, Q, dimension) {
 }
 
 # x <- makeTableSite(resSite = res_phylo_q0, Q = "q0", dimension = "phylogeny")
+
+##### Function to extract fixed effects and credible intervals #####
+getFixefQuantREG <- function(fits,
+                             probs = c(0.025, 0.05, 0.11, 0.25, 0.75, 0.89, 0.95, 0.975),
+                             robust = TRUE,
+                             metric,
+                             params = c("Intercept", "Slope"),
+                             dimension,
+                             Q,
+                             QuantLevel) {
+  fixLst <- list()
+  
+  for (i in 1:length(fits)) {
+    print(paste(metric, QuantLevel[i]))
+    
+    if (robust == TRUE) {
+      fix <- round(data.frame(brms::fixef(fits[[i]],
+                                          robust = TRUE,
+                                          probs = probs
+      )), 3)
+    } else {
+      fix <- round(data.frame(brms::fixef(fits[[i]],
+                                          robust = FALSE,
+                                          probs = probs
+      )), 3)
+    }
+    
+    fix$metric <- metric
+    fix$params <- params
+    fix$dimension <- dimension
+    fix$Quantile <- QuantLevel[i]
+    fix$Q <- Q
+    fixLst[[i]] <- fix
+  }
+  fixdt <- do.call(rbind, fixLst)
+  rownames(fixdt) <- NULL
+  return(fixdt)
+}
+
