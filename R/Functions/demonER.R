@@ -1,7 +1,7 @@
 # Function to extract hypothesis 
 demonER <- function(fit, metric, alpha, quantile) {
   
-  dtmat <- data.frame(fixef(fit, robust = TRUE))
+  dtmat <- data.frame(brms::fixef(fit, robust = TRUE))
   
   slope <- dtmat["Estimate"][2, ]
   param <- rownames(dtmat)[2]
@@ -10,19 +10,19 @@ demonER <- function(fit, metric, alpha, quantile) {
     
     if (slope > 0) {
       hyp <- paste0(param, " > 0")
-      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
     } else {
       hyp <- paste0(param, " < 0")
-      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
     }
   } else {
     
     if (slope > 0) {
       hyp <- paste0(param, " > 0")
-      h <- hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis
     } else {
       hyp <- paste0(param, " < 0")
-      h <- hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis
     } 
   }
   

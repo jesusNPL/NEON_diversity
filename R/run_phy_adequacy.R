@@ -41,8 +41,11 @@ demonTreeFit <- function(tree, traitSims, ncores = 20) {
   }
   
   models <- do.call(rbind, models)
+  
   return(models)
+  
   paste0("Model comparison finished without issues...!")
+  
 }
 
 ##### Load data #####
@@ -56,7 +59,7 @@ neon_tree <- phytools::force.ultrametric(neon_tree)
 neon_tree$edge.length[neon_tree$edge.length < tol-9] <- tol
 
 ##### Simulate traits #####
-trait_sims <- fastBM(neon_tree, nsim = 100)
+trait_sims <- fastBM(neon_tree, nsim = 1000)
 
 trait_sims <- na.omit(trait_sims)
 

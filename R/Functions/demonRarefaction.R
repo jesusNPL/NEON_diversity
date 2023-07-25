@@ -35,7 +35,7 @@ demoniNEXT <- function(samples, Q, nBoots) {
       select(all_of(colSel)) 
     
     ## Run iNEXT
-    out <- iNEXT(occ2, q = Q, 
+    out <- iNEXT::iNEXT(occ2, q = Q, 
                  datatype = "abundance", 
                  se = TRUE, conf = 0.95, nboot = nBoots) 
     

@@ -1,20 +1,36 @@
 library(tidyverse)
 library(ggdist)
+
 theme_set(bayesplot::theme_default(base_family = "sans"))
 
 source("R/NEON_diversity/R/Functions/demonRarefaction.R")
 
 ##### Load data #####
-load("DATA/matchTraitComm/matchTraitComm.RData") 
-sites <- names(matchedTrait$commNEON)
+#load("DATA/matchTraitComm/matchTraitComm.RData") 
+load("DATA/matchPhyloComm/matches_&_samples.RData")
+
+#sites <- names(matchedTrait$commNEON)
+sites <- names(matched$samplesNEON)
+
+matched$matcPhyComm$ABBY$comm
+
+NEONcomms <- list()
+
+for(i in 1:length(sites)) { 
+  
+  NEONcomms[[i]] <- matched$matcPhyComm[[i]]$comm
+  
+}
+
+names(NEONcomms) <- sites
 
 ##### Run rarefaction for q0, q1, q2 #####
-sampleCompletenessNEON <- demoniNEXT(samples = matchedTrait$commNEON, 
+sampleCompletenessNEON <- demoniNEXT(samples = NEONcomms, #matchedTrait$commNEON, 
                                      Q = c(0, 1, 2), 
                                      nBoots = 1000)
 
 save(sampleCompletenessNEON, 
-     file = "output/NEON_sample_completeness.RData")
+     file = "output/NEON_sample_completeness_final.RData")
 
 ##### Run rarefaction for q0 #####
 sampleCompletenessNEON_q0 <- demoniNEXT(samples = matchedTrait$commNEON, 
