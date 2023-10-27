@@ -93,7 +93,7 @@ for(i in 1:nMetrics) {
   fit <- phyQ[[i]]
   
   res <- demonPrediction(fit = fit, variable = metricPhylo[i], covariable = metricSpec[i], 
-                         dimension = "Phylogeny", Q = qs[i], nCores = 28, nIters = 2000)
+                         dimension = "Phylogeny", Q = qs[i], nCores = 20, nIters = 2000)
   
   resPhylo[[i]] <- res
   

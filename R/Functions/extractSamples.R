@@ -21,17 +21,23 @@ extractSamples <- function(model, parameters = "^b", nDraws = 100) {
   
 }
 
-extractSamples2 <- function(model, parameters = "^b", nDraws = 100) { 
+extractSamples2 <- function(model, parameters = "^b_", nDraws = 100) { 
   
-  posterior <- as.data.frame(model, pars = parameters)
+  # get posteriors
+  posterior <- as.data.frame(model, pars = parameters, regex = TRUE)
 
+  # estimate posterior means
   post_means <- colMeans(posterior)
-  # take a sample of 20 posterior draws
+  
+  # take a sample from the posterior draws
   keep <- sample(nrow(posterior), nDraws)
+  
   samp_draws <- posterior[keep, ] 
   
+  # store results
   results <- list(posterios = posterior, posterior_means = post_means, 
                   keep = keep, draws = samp_draws)
+  
   return(results)
   
 }

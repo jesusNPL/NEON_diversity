@@ -51,7 +51,8 @@ demonPrediction <- function(fit, variable = "PD", covariable = "SD", dimension, 
   } else {
     ## predicted values excluding the group-level effect of sites
     pp <- data.frame(predict(fit,
-      re_formula = ~ (1 | Site), robust = TRUE,
+      re_formula = NA, #~ (1 | Site), 
+      robust = TRUE,
       probs = c(0.025, 0.05, 0.11, 0.25, 0.50, 0.75, 0.89, 0.95, 0.975)
     ))
 
