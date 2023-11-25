@@ -45,7 +45,7 @@ demon_SSppDIV <- function(comm, q1, q2, q3, plotNames, nPlots, site) {
   if (!identical(all.equal(comm, round(comm)), TRUE)) {
     comm2 <- decostand(comm, "max")
     comm2 <- wisconsin(comm2)
-    comm2 <- round(comm2*10) 
+  
     ## Fisher alpha
     alphas$Fisher_alpha <- fisher.alpha(comm2)
     ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
@@ -55,7 +55,6 @@ demon_SSppDIV <- function(comm, q1, q2, q3, plotNames, nPlots, site) {
     ## Fisher alpha 
     comm2 <- decostand(comm, "total")
     comm2 <- wisconsin(comm2)
-    comm2 <- round(comm2*2) 
     ## Fisher alpha
     alphas$Fisher_alpha <- fisher.alpha(comm2)
     ## Unbiased Simpson (Hurlbert 1971, eq. 5) with rarefy:
