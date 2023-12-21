@@ -1,12 +1,15 @@
-god_BayReg_alpha_taxo <- function(resMetrics, nMetrics, pathSave, scale = TRUE, 
-                                  nChains, nIters, nCores, engine) {
+##### Wrapper function to run regression models #####
+god_BayReg_alpha_taxo <- function(resMetrics, 
+                                  nMetrics, 
+                                  pathSave, 
+                                  scale = TRUE, 
+                                  nChains, 
+                                  nIters, 
+                                  burnin, 
+                                  nCores, 
+                                  engine) {
+  ### Main library
   library(brms)
-  library(cmdstanr)
-  library(rstan)
-
-  ### Inits
-  rstan_options(auto_write = TRUE)
-  options(mc.cores = parallel::detectCores())
 
   ### Store results
   fits <- list()
@@ -14,45 +17,46 @@ god_BayReg_alpha_taxo <- function(resMetrics, nMetrics, pathSave, scale = TRUE,
   R2_regular <- list()
 
   for (i in 1:nMetrics) {
+    
     print(names(resMetrics[i + 2]))
-    print(names(resMetrics[i + 15]))
+    
+    print(names(resMetrics[i + 5]))
 
     ### Inits
-    data <- resMetrics[, c(1:2, i + 2, i + 15)]
+    data <- resMetrics[, c(1:2, i + 2, i + 5)]
     headers <- names(data)
 
-    #formulas <- as.formula(paste(
-     # headers[3],
-      #" ~ ",
-      #paste(headers[4],
-       # paste0("+ (1|Site)"),
-      #  collapse = "+"
-      #)
-    #))
-
-    if (scale == FALSE) {
+    if (scale == FALSE) { 
+      
       formulas <- as.formula(paste(
         headers[3], " ~ ",
-        paste(headers[4], paste0("+ (1|Site)"),
+        paste(headers[4], 
+              paste0("+ (1|siteID)"),
               collapse = "+"
         )
-      ))
-    } else {
-      formulas <- as.formula(paste(headers[3],  " ~ ",
-                                   paste0("scale(", headers[4], ")"),
-                                   paste0("+ (1|Site)"),
-                                   collapse = "+"
-      ))
-    }
+      )) 
+      
+    } else { 
+       
+      formulas <- as.formula(paste( 
+        headers[3],  " ~ ", 
+        paste0("scale(", headers[4], ")"), 
+        paste0("+ (1|siteID)"), 
+        collapse = "+"
+      )) 
+      
+    } 
+    
     ### Run
     fit <- brms::brm(
       formula = formulas,
       data = data,
       iter = nIters,
-      warmup = nIters / 5,
+      warmup = burnin,
       cores = nCores,
       backend = engine
-    )
+    ) 
+    
     ## extract robust Bayes R2
     robust <- data.frame(bayes_R2(fit, robust = TRUE))
     robust$Taxo <- headers[3]
@@ -78,6 +82,7 @@ god_BayReg_alpha_taxo <- function(resMetrics, nMetrics, pathSave, scale = TRUE,
   return(res)
 
   print(paste0("Bayesian models for alpha taxonomic dimension done..."))
+  
 }
 
 ############ ---------------- Alpha-Beta-Gamma ---------------- ##############

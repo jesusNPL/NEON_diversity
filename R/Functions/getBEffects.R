@@ -7,22 +7,28 @@ getFixef <- function(fits,
                      params = c("Intercept", "Slope"),
                      dimension,
                      Q,
-                     level) {
+                     level) { 
+  
   fixLst <- list()
 
-  for (i in 1:length(fits)) {
+  for (i in 1:length(fits)) { 
+    
     print(estimates[i, 5])
 
-    if (robust == TRUE) {
+    if (robust == TRUE) { 
+      
       fix <- round(data.frame(brms::fixef(fits[[i]],
         robust = TRUE,
         probs = probs
-      )), 3)
-    } else {
+      )), 3) 
+      
+    } else { 
+      
       fix <- round(data.frame(brms::fixef(fits[[i]],
         robust = FALSE,
         probs = probs
-      )), 3)
+      )), 3) 
+      
     }
 
     fix$metric <- estimates[i, 5]
@@ -30,11 +36,14 @@ getFixef <- function(fits,
     fix$dimension <- dimension
     fix$level <- level
     fix$Q <- Q
-    fixLst[[i]] <- fix
-  }
+    fixLst[[i]] <- fix 
+    
+  } 
+  
   fixdt <- do.call(rbind, fixLst)
   rownames(fixdt) <- NULL
-  return(fixdt)
+  return(fixdt) 
+  
 }
 
 # x <- getFixef(fits = res$fits, robust = TRUE,
@@ -53,16 +62,20 @@ getFixef_simple <- function(fit,
                      level) {
   
     
-    if (robust == TRUE) {
+    if (robust == TRUE) { 
+      
       fix <- round(data.frame(brms::fixef(fit,
                                           robust = TRUE,
                                           probs = probs
-      )), 3)
-    } else {
+      )), 3) 
+      
+    } else { 
+      
       fix <- round(data.frame(brms::fixef(fit,
                                           robust = FALSE,
                                           probs = probs
-      )), 3)
+      )), 3) 
+      
     }
     
     fix$metric <- metric
@@ -73,7 +86,8 @@ getFixef_simple <- function(fit,
 
   fixdt <- fix
   rownames(fixdt) <- NULL
-  return(fixdt)
+  return(fixdt) 
+  
 }
 
 ##### Function to get fixed effects from posterior distribution #####
@@ -83,26 +97,41 @@ getFixefPosterior <- function(fits,
                               nDraws,
                               dimension,
                               Q,
-                              level) {
+                              level) { 
+  
   posteriorLST <- list()
 
-  for (i in 1:length(fits)) {
-    print(estimates[i, 5])
-    posterior <- brms::posterior_samples(fits[[i]], pars = params)
+  for (i in 1:length(fits)) { 
+    
+    print(estimates[i, 5]) 
+    
+    #posterior <- brms::posterior_samples(fits[[i]], pars = params) 
+    ## Samples from posterior distribution
+    posterior <- as.data.frame(x = fits[[i]], # fit object
+                               regex = TRUE) # transform the parameters to a data frame
+    
+    ## Select samples to keep
     keep <- sample(nrow(posterior), nDraws)
+    ## Keep samples at random
     posterior <- posterior[keep, ]
+    ## Select columns for our purpose
+    posterior <- posterior[, ]
+    names(posterior) <- c("Incercept", "Slope", "Sigma") 
+    
+    posterior$metric <- estimates[i, 5] 
+    posterior$dimension <- dimension 
+    posterior$level <- level 
+    posterior$Q <- Q 
 
-    names(posterior) <- c("Incercept", "Slope")
-    posterior$metric <- estimates[i, 5]
-    posterior$dimension <- dimension
-    posterior$level <- level
-    posterior$Q <- Q
-
-    posteriorLST[[i]] <- posterior
+    posteriorLST[[i]] <- posterior 
+    
   }
-
-  posteriorSamples <- do.call(rbind, posteriorLST)
-  return(posteriorSamples)
+  
+  # Combine samples
+  posteriorSamples <- do.call(rbind, posteriorLST) 
+  
+  return(posteriorSamples) 
+  
 }
 
 
@@ -118,11 +147,16 @@ getR2Estimates <- function(fits,
                            robust = TRUE,
                            dimension,
                            Q,
-                           level) {
-  if (robust == TRUE) {
-    estimates <- res$R2_robust
-  } else {
-    estimates <- res$R2
+                           level) { 
+  
+  if (robust == TRUE) { 
+    
+    estimates <- res$R2_robust 
+    
+  } else { 
+    
+    estimates <- res$R2 
+    
   }
 
   names(estimates) <- c("Estimate", "Est.Error", "Q2.5", "Q97.5", "metric", "metric_spec")
@@ -131,7 +165,8 @@ getR2Estimates <- function(fits,
   estimates$Q <- Q
 
   rownames(estimates) <- NULL
-  return(estimates)
+  return(estimates) 
+  
 }
 
 # getR2Estimates(fits = res,
@@ -147,22 +182,28 @@ makeHypothesis <- function(fits,
                            dimension,
                            Q,
                            level, 
-                           alpha = 0.05) {
+                           alpha = 0.05) { 
+  
   hypLST <- list()
 
-  for (i in 1:length(fits)) {
+  for (i in 1:length(fits)) { 
+    
     fit <- fits[[i]]
 
     fixfit <- data.frame(fixef(fit))
     param <- rownames(fixfit)[2]
     slope <- fixfit[2, 1]
 
-    if (slope > 0) {
-      hyp <- paste0(param, " > 0")
-      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
-    } else {
-      hyp <- paste0(param, " < 0")
-      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
+    if (slope > 0) { 
+      
+      hyp <- paste0(param, " > 0") 
+      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis 
+      
+    } else { 
+      
+      hyp <- paste0(param, " < 0") 
+      h <- hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis 
+      
     }
 
     h$metric <- estimates[i, 5]
@@ -170,11 +211,13 @@ makeHypothesis <- function(fits,
     h$level <- level
     h$Q <- Q
 
-    hypLST[[i]] <- h
+    hypLST[[i]] <- h 
+    
   }
 
   hypTBL <- do.call(rbind, hypLST)
-  return(hypTBL)
+  return(hypTBL) 
+  
 }
 
 # x <- makeHypothesis(fits = res$fits,
@@ -237,22 +280,28 @@ getFixefQuantREG <- function(fits,
                              params = c("Intercept", "Slope"),
                              dimension,
                              Q,
-                             QuantLevel) {
+                             QuantLevel) { 
+  
   fixLst <- list()
   
-  for (i in 1:length(fits)) {
+  for (i in 1:length(fits)) { 
+    
     print(paste(metric, QuantLevel[i]))
     
-    if (robust == TRUE) {
+    if (robust == TRUE) { 
+      
       fix <- round(data.frame(brms::fixef(fits[[i]],
                                           robust = TRUE,
                                           probs = probs
-      )), 3)
-    } else {
+      )), 3) 
+      
+    } else { 
+      
       fix <- round(data.frame(brms::fixef(fits[[i]],
                                           robust = FALSE,
                                           probs = probs
-      )), 3)
+      )), 3) 
+      
     }
     
     fix$metric <- metric
@@ -260,10 +309,13 @@ getFixefQuantREG <- function(fits,
     fix$dimension <- dimension
     fix$Quantile <- QuantLevel[i]
     fix$Q <- Q
-    fixLst[[i]] <- fix
-  }
+    fixLst[[i]] <- fix 
+    
+  } 
+  
   fixdt <- do.call(rbind, fixLst)
   rownames(fixdt) <- NULL
-  return(fixdt)
+  return(fixdt) 
+  
 }
 

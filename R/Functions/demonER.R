@@ -8,21 +8,29 @@ demonER <- function(fit, metric, alpha, quantile) {
   
   if (alpha == 0.1) { 
     
-    if (slope > 0) {
-      hyp <- paste0(param, " > 0")
-      h <- brms::hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
-    } else {
-      hyp <- paste0(param, " < 0")
-      h <- brms::hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis
+    if (slope > 0) { 
+      
+      hyp <- paste0(param, " > 0") 
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis 
+      
+    } else { 
+      
+      hyp <- paste0(param, " < 0") 
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = alpha)$hypothesis 
+      
     }
   } else {
     
-    if (slope > 0) {
-      hyp <- paste0(param, " > 0")
-      h <- brms::hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis
-    } else {
-      hyp <- paste0(param, " < 0")
-      h <- brms::hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis
+    if (slope > 0) { 
+      
+      hyp <- paste0(param, " > 0") 
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis 
+      
+    } else { 
+      
+      hyp <- paste0(param, " < 0") 
+      h <- brms::hypothesis(fit, hyp, class = "b", alpha = 0.05)$hypothesis 
+      
     } 
   }
   

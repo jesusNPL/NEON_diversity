@@ -2,8 +2,16 @@
 ### Function that correlates the observed and predited variables and
 # calculates metrics of accuracy
 
-demonPrediction <- function(fit, variable = "PD", covariable = "SD", dimension, Q,
-                            groupLevel = FALSE, nCores = 12, nIters = 2000) {
+demonPrediction <- function(fit, 
+                            variable = "PD", 
+                            covariable = "SD", 
+                            dimension, 
+                            Q,
+                            groupLevel = FALSE, 
+                            nCores = 12, 
+                            nIters = 2000, 
+                            burnin) { 
+  
   library(brms)
   library(cmdstanr)
 
@@ -32,10 +40,11 @@ demonPrediction <- function(fit, variable = "PD", covariable = "SD", dimension, 
     sqrt(mean((observed - predicted)^2))
   }
 
-  ##### prepare data
+  ##### prepare data #####
   ## predicted values including the group-level effect of sites
 
-  if (groupLevel == TRUE) {
+  if (groupLevel == TRUE) { 
+    
     pp <- data.frame(predict(fit,
       robust = TRUE,
       probs = c(0.025, 0.05, 0.11, 0.25, 0.50, 0.75, 0.89, 0.95, 0.975)
@@ -47,11 +56,13 @@ demonPrediction <- function(fit, variable = "PD", covariable = "SD", dimension, 
 
     pp1 <- pp[, c(variable, "Estimate")]
 
-    names(pp1) <- c("variable", "Estimate")
-  } else {
+    names(pp1) <- c("variable", "Estimate") 
+    
+  } else { 
+    
     ## predicted values excluding the group-level effect of sites
     pp <- data.frame(predict(fit,
-      re_formula = NA, #~ (1 | Site), 
+      re_formula = NA, 
       robust = TRUE,
       probs = c(0.025, 0.05, 0.11, 0.25, 0.50, 0.75, 0.89, 0.95, 0.975)
     ))
@@ -62,7 +73,8 @@ demonPrediction <- function(fit, variable = "PD", covariable = "SD", dimension, 
 
     pp1 <- pp[, c(variable, "Estimate")]
 
-    names(pp1) <- c("variable", "Estimate")
+    names(pp1) <- c("variable", "Estimate") 
+    
   }
 
   # form <- as.formula(mvbind(paste(variable, "Estimate") ~ 1)))
@@ -121,7 +133,8 @@ demonPrediction <- function(fit, variable = "PD", covariable = "SD", dimension, 
 
   rownames(cors) <- NULL
 
-  ##### Plot level evaluations #####
+  ##### Plot level evaluations ##### 
+  
   PREDdev <- abs(pp[, variable] - pp[, "Estimate"]) / max(pp[, variable])
   PREDdiff <- (pp[, variable] - pp[, "Estimate"])
   PRED_change <- ((pp[, "Estimate"] - pp[, variable]) / pp[, variable])
@@ -141,7 +154,8 @@ demonPrediction <- function(fit, variable = "PD", covariable = "SD", dimension, 
   ### Store results
   results <- list(corTable = cors, siteResults = plotRES)
 
-  return(results)
+  return(results) 
+  
 }
 
 ## Use
