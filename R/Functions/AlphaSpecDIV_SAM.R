@@ -18,17 +18,24 @@ demon_SPEC_to_RASTER <- function(spectra, plotNames, nPlots) {
   plots <- list()
   
   for(i in 1:nPlots) { 
-    svMisc::progress(i, max.value = nPlots)
     
-    pt <- spectra %>% filter(plotID == plotNames[i])
-    pt_spt <- sp::SpatialPixelsDataFrame(points = pt[, 1:2], pt[, 5:430])
+    svMisc::progress(i, max.value = nPlots, progress.bar = TRUE)
+    
+    pt <- spectra %>% 
+      filter(plotID == plotNames[i]) 
+    
+    pt_spt <- sp::SpatialPixelsDataFrame(points = pt[, 1:2], pt)
     
     tmp_ras <- raster::brick(pt_spt)
+    
     plots[[i]] <- tmp_ras
     
   }
+  
   names(plots) <- plotNames
+  
   return(plots)
+
 }
 
 #harv_ras <- demon_SPEC_to_RASTER(spectra = harv, 
@@ -39,22 +46,37 @@ demon_SPEC_to_RASTER <- function(spectra, plotNames, nPlots) {
 ##### calculate SAM ######
 distSAM <- function(spectraRAS, nPlots, plotNames) {
   
-  library(RStoolbox)
+  if ( ! ("RStoolbox" %in% installed.packages())) {remotes::install_github("bleutner/RStoolbox")} 
+  #library(RStoolbox)
 
   sam_lst <- list()
   
   for(i in 1:nPlots) { 
+    
     print(plotNames[i])
     
-    spec <- spectraRAS[[i]]
+    spec <- spectraRAS[[i]] 
+    
+    # Select bands with spectral information
+    spec <- subset(spec, 4:nlayers(spec))
+    
     spec_coords <- sp::coordinates(spec) 
-    endmembers <- raster::extract(spec, spec_coords)
-    sam_Ras <- RStoolbox::sam(spec, endmembers, angles = TRUE)
-    sam_DT <- as.data.frame(sam_Ras)
+    
+    endmembers <- raster::extract(spec, spec_coords) 
+    
+    # SAM distance
+    sam_Ras <- RStoolbox::sam(spec, endmembers, angles = TRUE) 
+    
+    sam_DT <- as.data.frame(sam_Ras) 
+    
     sam_lst[[i]] <- sam_DT
+    
   }
-  names(sam_lst) <- plotNames
+  
+  names(sam_lst) <- plotNames 
+  
   return(sam_lst)
+  
 }
 
 
@@ -75,6 +97,7 @@ demon_DivDistance_SAM <- function(samList, Q, nPlots, plotNames) {
   library(tidyr)
   # Scheiner metrics are calculated using functions written by Shan Kothari.
   source("https://raw.githubusercontent.com/ShanKothari/DecomposingFD/master/R/AlphaFD.R")
+  #source("https://raw.githubusercontent.com/jesusNPL/DecomposingFD/master/R/AlphaFD.R")
   
   ### Store calculations ###
   SD <- numeric(length = nPlots) # analogous to PD - phylogenetic diversity
@@ -110,12 +133,43 @@ demon_DivDistance_SAM <- function(samList, Q, nPlots, plotNames) {
     
     spec <- samList[[i]]
     
-    spec <- na.omit(spec) 
+    # Assigning row names based on column names
+    rownames(spec) <- colnames(spec)
     
-    if(nrow(spec) == 0) {
-      next
+    ### Removing pixels with NA values caused by the masking process
+    x <- colSums(spec, na.rm = TRUE) 
+    y <- rowSums(spec, na.rm = TRUE)
+    
+    x <- x[x > 0]
+    
+    y <- y[y > 0]
+    
+    selCols <- names(x)
+    selRows <- names(y)
+    
+    ## Match columns and rows with spectral information
+    spec <- spec %>% 
+      dplyr::select(all_of(selCols)) %>% # select columns with spectral information 
+      dplyr::filter(rownames(spec) %in% selCols) # select rows with spectral information
+
+    #na_rows <- spec[is.na(spec[1, ]), ] # select rows with NAs
+    #naSel <- rownames(na_rows)
+    
+    #spec <- spec %>% # Remove columns with NAs
+     # dplyr::select(-naSel)
+    
+    if (dim(spec)[2] == 0) { 
+      
+      next 
+      
     }
     
+    #spec <- spec %>% # remove rows with NAs
+     # drop_na()
+    
+    # Transform to matrix
+    spec <- as.matrix(spec)
+    # Transform matrix to distance
     specDist <- as.dist(spec)
 
     # if we wanted to transform our original matrix into relative abundance we
@@ -123,16 +177,16 @@ demon_DivDistance_SAM <- function(samList, Q, nPlots, plotNames) {
     # by the total of all values in a row if the MARGIN is set to ONE.
     
     ### Start calculations ###
-    SD[i] <- sum(specDist) # analogous to PD - phylogenetic diversity
+    SD[i] <- sum(specDist, na.rm = TRUE) # analogous to PD - phylogenetic diversity
     msd <- specDist[lower.tri(specDist, diag = FALSE)]
-    MSD[i] <- mean(na.omit(msd)) # analogous to MPD - mean pairwise distance
-    MS[i] <- mean(na.omit(specDist)) # simple mean distance
+    MSD[i] <- mean(msd, na.rm = TRUE) # analogous to MPD - mean pairwise distance
+    MS[i] <- mean(specDist, na.rm = TRUE) # simple mean distance
     #mnsd <- specDist
     #diag(mnsd) <- NA
     #MNSD[i] <- mean(apply(mnsd, MARGIN = 2, min), na.rm = TRUE) # analogous to MNTD - mean nearest taxon distance
     #MxNSD[i] <- max(apply(mnsd, MARGIN = 2, min), na.rm = TRUE) # maximum MNTD
     #SNTD[i] <- sd(apply(mnsd, MARGIN = 2, min), na.rm = TRUE) # standard deviation Of MNTD
-    aveRange[i] <- mean(apply(spec, MARGIN = 2, max) - apply(spec, MARGIN = 2, min))
+    aveRange[i] <- mean(apply(spec, MARGIN = 2, max) - apply(spec, MARGIN = 2, min), na.rm = TRUE)
     
     # Scheiner metrics
     Scheiner <- FTD(specDist, q = Q)

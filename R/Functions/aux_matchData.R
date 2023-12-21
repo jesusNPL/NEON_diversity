@@ -15,6 +15,7 @@ matchNEON_phy <- function(samples, phy, sites, nSites) {
   matchNEON <- list()
   
   for(i in 1:nSites) { 
+    
     samp <- samples %>% 
       filter(siteID == sites[i]) 
     # sample data
@@ -25,14 +26,17 @@ matchNEON_phy <- function(samples, phy, sites, nSites) {
     # matched phylo-comm
     matched <- match.phylo.comm(phy = phy, comm = comms)
     matchNEON[[i]] <- matched
-  }
+    
+  } 
+  
   names(sampNEON) <- sites
   names(matchNEON) <- sites
   
-  res <- list(matcPhyComm = matchNEON, samplesNEON = sampNEON)
+  res <- list(matcPhyComm = matchNEON, samplesNEON = sampNEON) 
+  
   return(res)
   
-  print("Match phylogenetic and community data DONE!")
+  print("Match phylogenetic and community data, DONE!")
   
 }
 
@@ -51,14 +55,15 @@ matched_TraitComm <- function(samples, traits, sites, nSites) {
   matchTrait <- list()
   matchComm <- list()
   
-  for(j in 1:nSites) {
+  for(j in 1:nSites) { 
+    
     samp <- samples %>% 
       filter(siteID == sites[j]) 
     
     sppSamp <- unique(samp$SciNames)
     # trait data
-    traitSamp <- traits[traits$Species %in% sppSamp, ]
-    spptrait <- traitSamp$Species
+    traitSamp <- traits[traits$species %in% sppSamp, ]
+    spptrait <- traitSamp$species
     
     matchTrait[[j]] <- traitSamp
     
@@ -73,8 +78,12 @@ matched_TraitComm <- function(samples, traits, sites, nSites) {
   names(matchTrait) <- sites 
   names(matchComm) <- sites
   
-  res <- list(traitNEON = matchTrait, commNEON = matchComm)
-  return(res)
+  res <- list(traitNEON = matchTrait, commNEON = matchComm) 
+  
+  return(res) 
+  
+  print("Match trait and community data, DONE!")
+  
 }
 
 # this function is for match data using data provided by Anna

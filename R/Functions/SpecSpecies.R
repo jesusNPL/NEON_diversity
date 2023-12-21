@@ -7,7 +7,13 @@
 # metrics = vector of metrics to be evaluated
 # Ncores = number of cores to be used
 
-demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics, Ncores, progress = FALSE) { 
+demon_ThreshClusters <- function(spectra, 
+                                 distance = "euclidean", 
+                                 Nspp, 
+                                 metrics, 
+                                 nMetrics, 
+                                 Ncores, 
+                                 progress = FALSE) { 
   
   if ( ! ("NbClust" %in% installed.packages())) {install.packages("NbClust", dependencies = TRUE)} 
   if ( ! ("dplyr" %in% installed.packages())) {install.packages("dplyr", dependencies = TRUE)}
@@ -18,19 +24,22 @@ demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics,
   require(dplyr)
   require(tidyr)
   # remove NAs
-  spec <- na.omit(spectra)
+  #spec <- na.omit(spectra)
   
+ 
   #  Distance
-  Dist_mat <- dist(spec, method = distance, diag = FALSE) 
+  spec <- spectra # objects from the SAM
   
-  resu <- data.frame(matrix(ncol = 2, nrow = length(metrics)))
+  # Matrix to store results
+  resu <- data.frame(matrix(ncol = 2, nrow = nMetrics))
+  names(resu) <- c("N_clusters", "Index_value")
   
   # Start Parallel 
   cl <- parallel::makeCluster(Ncores)
   #register it to be used by %dopar%
   #doParallel::registerDoParallel(cl = cl)
   
-  for(j in 1:length(metrics)) {
+  for(j in 1:nMetrics) {
     
     if (progress == TRUE) { 
       
@@ -39,9 +48,10 @@ demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics,
     }
     
     res <- NbClust::NbClust(data = spec, 
-                            diss = Dist_mat, 
-                            distance = NULL, 
-                            min.nc = 3, max.nc = Nspp, 
+                            diss = NULL,  
+                            distance = "euclidean", 
+                            min.nc = 2, # minimum number of species present in the plot
+                            max.nc = Nspp, # maximum number of species present in the plot
                             method = "kmeans", 
                             index = metrics[j], # error with ccc, scott, marriot, trcovw, tracew
                             #friedman, rubin, 
@@ -55,18 +65,12 @@ demon_ThreshClusters <- function(spectra, distance = "euclidean", Nspp, metrics,
   #Stop parallel computation
   parallel::stopCluster(cl = cl)
   
-  resu$metric <- metrics
-  names(resu) <- c("Number_clusters", "Value_Index", "Metric") 
-
-  # Majority rule
-  mrClust <- resu %>% 
-    count(Number_clusters) #%>% 
-  #filter(n > 1)
-  meanClust <- round(mean(resu$Number_clusters)) 
+  resu$Metric <- metrics
   
-  results <- list("Metrics" = resu, "Majority_rule" = mrClust, "Mean_rule" = meanClust)
+  results <- resu
   
   return(results)
+  
 }
 
 ##### Set spectral species #####
@@ -93,26 +97,29 @@ demon_SS <- function(spectra, threshold, nPlots, plotNames, progress = FALSE) {
       
     }
     
-    if (threshold[i] <= 3) {
-      threshold[i] <- 4
-    }
-    
+    ## Threshold
     th <- threshold[i]
     
-    specPlot <- spectra %>% filter(plotID == plotNames[i]) 
-    # remove NAs
-    spec <- na.omit(specPlot[, 5:430])
-    # Scale spectra
-    spec <- scale(spec) 
-    # Perform  robust version of K-means
-    robustK <- pam(specPlot, th) 
+    ## Select plots
+    specPlot <- spectra %>% 
+      filter(plotID == plotNames[i]) 
     
-    specPlot$SS <- as.factor(robustK$clustering)
+    ## remove NAs that correspond to masked pixels  
+    specPlot <- specPlot %>% 
+      drop_na() 
+
+    # Perform  robust version of K-means
+    robustK <- cluster::pam(x = specPlot[, 4:ncol(specPlot)], th) 
+    
+    ## Assign spectral species names 
+    specPlot <- specPlot %>% 
+      mutate(SS = paste0("SS_", as.factor(robustK$clustering))) %>% 
+      select(X, Y, plotID, SS, everything())
     
     SS[[i]] <- specPlot
     
   }
-  
+  ## Combine results by site
   SS <- data.frame(do.call(rbind, SS))
   
   return(SS)

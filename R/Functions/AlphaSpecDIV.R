@@ -127,26 +127,54 @@ demon_DivDistance <- function(spectra, distance, standardize = FALSE, gowDist = 
 ## Q = numeric value that represents the Hill coefficient q
 ## plotNames = names of the plots
 
-demon_PhyloDistance <- function(comm, phylo, abundance = TRUE, Q, plotNames) {
+demon_PhyloDistance <- function(comm, phylo, abundance = TRUE, 
+                                Q, siteName, plotNames) {
   # Scheiner metrics are calculated using functions written by Shan Kothari.
   source("https://raw.githubusercontent.com/ShanKothari/DecomposingFD/master/R/AlphaFD.R")
   library(picante)
   
+  ### Scheiner metrics 
+  Scheiner <- FTD.comm(tdmat = cophenetic(phylo), 
+                       spmat = comm, 
+                       q = Q, 
+                       abund = TRUE)$com.FTD 
   
-  # Scheiner metrics 
-  Scheiner <- FTD.comm(tdmat = cophenetic(phylo), spmat = comm, q = Q, abund = TRUE)$com.FTD
+  print("Scheiner metrics, done!")
 
-  PD <- picante::ses.pd(samp = comm, tree = phylo, 
-                               null.model = "taxa.labels")  
-  MPD <- picante::ses.mpd(samp = comm, cophenetic(phylo), 
-                                 null.model = "taxa.labels", abundance.weighted = TRUE) 
+  ### Picante metrics
+  PD <- picante::ses.pd(samp = comm, 
+                        tree = phylo, 
+                        null.model = "taxa.labels")  
   
-  PICANTE <- data.frame(PD[, c("pd.obs", "pd.obs.z")], MPD[, c("mpd.obs", "mpd.obs.z")]) 
+  MPD <- picante::ses.mpd(samp = comm, cophenetic(phylo), 
+                          null.model = "taxa.labels", 
+                          abundance.weighted = TRUE) 
+  
+  PSDs <- psd(samp = comm, 
+              tree = phylo)
+    
+  print("Picante metrics, done!")
+  
+  # PD and MPD
+  PICANTE <- data.frame(PD[, c("pd.obs", "pd.obs.z")], 
+                        MPD[, c("mpd.obs", "mpd.obs.z")], 
+                        PSDs[, c("PSV", "PSC", "PSR", "PSE")]) 
+  
+  ### Rao Q
   PICANTE$RaoD <- raoD(comm, force.ultrametric(phylo))$Dkk
   
-  res <- data.frame(plotID = plotNames, PICANTE, Scheiner)
-  names(res) <- c("plotID", "PD", "PDz", "MPD", "MPDz", "RaoD", 
+  print("Rao Q diversity metric, done! ")
+
+  ### Store results
+  res <- data.frame(siteID = siteName, 
+                    plotID = plotNames, 
+                    PICANTE, 
+                    Scheiner)
+  
+  names(res) <- c("siteID", "plotID", "PD", "PDz", "MPD", "MPDz", 
+                  "PSV", "PSC", "PSR", "PSE", "RaoD", 
                   "SR", "qHill", "M", "mPrime", "qHt", "qEt", "qDT", "qDTM")
+  
   return(res)
 
 }
@@ -177,11 +205,15 @@ demon_TraitDistance <- function(comm, trait, abundance = TRUE, Q, plotNames, nPl
   #matched <- match.comm.dist(comm = matchPhylo$comm, dis = traitDist)
   
   # Scheiner metrics 
-  Scheiner <- FTD.comm(tdmat = traitDist, spmat = comm, 
-                       q = Q, abund = TRUE, match.names = TRUE)$com.FTD
+  Scheiner <- FTD.comm(tdmat = traitDist, 
+                       spmat = comm, 
+                       q = Q, 
+                       abund = TRUE, 
+                       match.names = TRUE)$com.FTD
   
   print("Scheiner metrics, done!")
   
+  ### Picante metrics
   MPD <- picante::ses.mpd(samp = comm, traitDist, 
                           null.model = "taxa.labels", abundance.weighted = TRUE) 
   
@@ -218,11 +250,13 @@ demon_TraitDistance <- function(comm, trait, abundance = TRUE, Q, plotNames, nPl
   
   print("Classic trait diversity metrics, done! ")
   
+  ### Store results
   results <- data.frame(plotID = plotNames, PICANTE, Scheiner, traitDiver)
   
   names(results) <- c("plotID", "MFD", "MFDz", # Picante 
                   "SR", "qHill", "M", "mPrime", "qHt", "qEt", "qDT", "qDTM", # Scheiner
                   "TDivergence", "TEveness", "TRao", "TDispersion", "TRichness") # classic
+  
   return(results)
   
 }

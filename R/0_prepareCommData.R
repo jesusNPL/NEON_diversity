@@ -19,11 +19,13 @@ comNEON <- comNEON %>%
 
 ##### Match Community composition with phylogeny and traits #####
 comNEON <- readRDS("DATA/Plants_NEON/commNEON_LONG.rds")
+
 comNEON <- comNEON %>% 
         select(domainID, siteID, plotID, plotID_SPEC, pnum, SciNames, percentCover)
 
 sites <- unique(comNEON$siteID)
 
+## Select sites with HSI
 x <- data.frame(list.files("DATA/Spectra/"))
 names(x) <- "header"
 xx <- x %>% 
@@ -43,44 +45,27 @@ comNEON <- comNEON %>%
 phyNEON <- read.nexus("DATA/Phylogeny/Plants/phylo_ALL_NEON_S3.nex")
 
 ### Traits
-#trtNEON <- read.csv("DATA/Traits/Traits_BIEN/GapFilling/imputedTRAITS.csv")
+trtNEON <- read.csv("DATA/Traits/GapFilling/imputedTRAITS.csv")
 
-load("DATA/Traits/new_Imputation_FULL.RData")
-
-imp$ximp
-
-
+# Select leaf traits
 trtNEON <- trtNEON %>% 
-        select(Species, mean_LNCPLDryMass, mean_LArea, mean_LAreaPLDryMass, 
+        select(species, mean_LNCPLDryMass, mean_LArea, mean_LAreaPLDryMass, 
                mean_LDryMass, mean_LCCPLDryMass, mean_LLifeSpan, mean_LCCPLNC, 
                mean_LNCPLArea, mean_LStomatalPLArea, mean_LFreshMass)
 
-### Community data
-commNEON <- read.csv("DATA/Plants_NEON/veg_cover_compiled.csv")
-
-commNEON <- commNEON %>% 
-        mutate(pID = plotID) %>% 
-        separate(pID, sep = "_", into = c("Site", "pnum")) %>% 
-        mutate(pnum = str_remove(pnum, "^0+")) %>% 
-        mutate(plotID_SPEC = paste0("P_", pnum)) %>% 
-        select(Site, plotID, plotID_SPEC, pnum, comment, todo, 
-               tree_cov, herb_cov, plotyear_herb, plotyear_tree, tot_herb, 
-               everything())
-
-commNEON <- commNEON %>% 
-        filter(todo == "Maybe Out" | todo == "Keep")
-        
-saveRDS(commNEON, file = "DATA/Plants_NEON/veg_cover_compiled_clean.rds")
 
 ##### Match data by community #####
-
 load("R/NEON_diversity/R/Functions/aux_matchData.R")
+
 sitesNEON <- sort(unique(comNEON$siteID))
 
 ### Match community and phylogenetic data 
 
-matched <- matchNEON_phy(samples = comNEON, phy = phyNEON, 
-                         sites = sitesNEON, nSites = length(sitesNEON))
+matched <- matchNEON_phy(samples = comNEON, # NEON plots
+                         phy = phyNEON, # phylogeny
+                         sites = sitesNEON, # site names
+                         nSites = length(sitesNEON) # number of sites
+                         ) 
 
 matched_PhyComm <- matched[[1]]
 
@@ -89,9 +74,15 @@ save(matched, file = "DATA/matchPhyloComm/matches_&_samples.RData")
 
 ### Match community and trait data
 
-matchedTrait <- matched_TraitComm(samples = comNEON, traits = trtNEON, 
-                                  sites = sitesNEON, nSites = length(sitesNEON))
+matchedTrait <- matched_TraitComm(samples = comNEON, # NEON plots
+                                  traits = trtNEON, # traits 
+                                  sites = sitesNEON, # site names
+                                  nSites = length(sitesNEON) # number of sites
+                                  )
 
-save(matchedTrait, file = "DATA/matchTraitComm/matchTraitComm.RData")
+matchedTrait[[1]]$ABBY
+matchedTrait[[2]]$ABBY
+
+save(matchedTrait, file = "DATA/matchTraitComm/matchTraitComm_Check.RData")
 
 

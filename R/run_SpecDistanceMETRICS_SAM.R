@@ -24,6 +24,7 @@ for(j in 1:nSites) {
   print(sites[j])
   
   spec <- read.csv(paste0("DATA/Spectra/", sites[j], "_spectra_grid.csv"))
+  
   spec <- spec %>% 
     drop_na() 
   
@@ -82,4 +83,4 @@ for(j in 1:nSites) {
 
 NEON_specDiv_SAM <- do.call(rbind, NEON_specDiv_SAM)
 
-saveRDS(NEON_specDiv_SAM, file = "Results/spectralDiversity/spectral_NEON_SAM_q0.rds")
+saveRDS(NEON_specDiv_SAM, file = "Results/spectralDiversity/Reanalyses/spectral_NEON_SAM_q0.rds")
