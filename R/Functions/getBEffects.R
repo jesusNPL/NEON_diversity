@@ -41,7 +41,11 @@ getFixef <- function(fits,
   } 
   
   fixdt <- do.call(rbind, fixLst)
-  rownames(fixdt) <- NULL
+  rownames(fixdt) <- NULL 
+  
+  fixdt <- fixdt %>% 
+    dplyr::select(dimension, metric, params, level, Q, everything())
+  
   return(fixdt) 
   
 }

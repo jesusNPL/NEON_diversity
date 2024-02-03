@@ -16,7 +16,6 @@ sites <- names(matchedTrait$traitNEON)
 nSites <- length(sites)
 QS <- c(0, 1, 2) # different q values
 
-
 trait_NEON_dis_q0 <- list()
 trait_NEON_dis_q1 <- list()
 trait_NEON_dis_q2 <- list()
