@@ -1,2 +1,2 @@
 # NEON_diversity
- new repo NSF macrosystem
+ new repo ground-sky associations
